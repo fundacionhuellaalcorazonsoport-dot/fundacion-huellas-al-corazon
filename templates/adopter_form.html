@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud para {{ dog.name }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header><nav class="navbar"><div class="logo">Huellas al Corazón</div></nav></header>
+
+    <!-- SIDEBAR UNIFICADO -->
+    <div id="mySidebar" class="sidebar">
+        <a href="{{ url_for('index') }}"><i class="fas fa-home icon"></i> <span class="link-text">Inicio</span></a>
+        <a href="{{ url_for('adopt') }}"><i class="fas fa-paw icon"></i> <span class="link-text">¡Adoptar Ahora!</span></a>
+        
+        {% if logged_in %}
+        <a href="{{ url_for('my_adoptions') }}"><i class="fas fa-heart icon"></i> <span class="link-text">Mis Adopciones</span></a>
+            {% if current_user.username == 'gfiguera' %}
+        <a href="{{ url_for('admin') }}"><i class="fas fa-user-shield icon"></i> <span class="link-text">Administración</span></a>
+        <a href="{{ url_for('schedule_page') }}"><i class="fas fa-calendar-alt icon"></i> <span class="link-text">Calendario</span></a>    
+        
+        {% endif %}
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt icon"></i> <span class="link-text">Cerrar Sesión ({{ username }})</span></a>
+        {% else %}
+            <a href="{{ url_for('login_page') }}"><i class="fas fa-sign-in-alt icon"></i> <span class="link-text">Iniciar Sesión</span></a>
+        {% endif %}
+        <a href="{{ url_for('how_to_help') }}"><i class="fas fa-hand-holding-heart icon"></i> <span class="link-text">Cómo Ayudarnos</span></a>
+         <a href="{{ url_for('faq') }}"><i class="fas fa-question-circle icon"></i> <span class="link-text">Preguntas Frecuentes</span></a>
+        <a href="{{ url_for('contact_page') }}"><i class="fas fa-envelope icon"></i> <span class="link-text">Contacto</span></a>
+    </div>
+
+
+    <div id="main-content" style="padding-top: 80px;">
+        <div class="content-card">
+            <h2 style="color: var(--color-fucsia);">Solicitud para Adoptar a {{ dog.name }}</h2>
+            <div style="display:flex; justify-content:center; margin-bottom:20px;">
+                <img src="{{ url_for('static', filename='uploads/' + dog.photo_path) }}" style="width:150px; height:150px; object-fit:cover; border-radius:50%; border:4px solid var(--color-azul-electrico);">
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-message-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('submit_adoption_request') }}" method="POST">
+                <input type="hidden" name="dog_id" value="{{ dog.id }}">
+
+                <!-- SECCIÓN 1: CREAR CUENTA (Solo si no está logueado) -->
+                {% if not logged_in %}
+                <div style="background: #f0f2f5; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: left;">
+                    <h3 style="color: var(--color-azul-electrico); margin-top: 0;"><i class="fas fa-user-plus"></i> Paso 1: Crea tu Cuenta</h3>
+                    <p style="font-size: 0.9rem;">Para adoptar, necesitamos registrarte en nuestro sistema.</p>
+                    
+                    <div class="form-group">
+                        <label>Usuario (Para iniciar sesión):</label>
+                        <input type="text" name="username" required placeholder="Ej: juanperez">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad (Obligatorio):</label>
+                        <input type="text" name="cedula" required placeholder="V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" name="password" required>
+                    </div>
+                </div>
+                {% else %}
+                <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="color: #155724; margin: 0;"><strong><i class="fas fa-user-check"></i> Identificado como:</strong> {{ current_user.username }} (C.I: {{ current_user.cedula }})</p>
+                </div>
+                {% endif %}
+
+                <!-- SECCIÓN 2: DATOS DE CONTACTO -->
+                <div style="text-align: left;">
+                    <h3><i class="fas fa-address-card"></i> Paso {% if not logged_in %}2{% else %}1{% endif %}: Datos de Contacto</h3>
+                    <div class="form-group">
+                        <label>Nombre Completo y Apellido:</label>
+                        <input type="text" name="fullname" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono:</label>
+                        <input type="text" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección de residencia:</label>
+                        <input type="text" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>RIF:</label>
+                        <input type="text" name="rif">
+                    </div>
+                </div>
+
+                <button type="submit" class="button primary" style="width: 100%; margin-top: 20px;">Enviar Solicitud de Adopción</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function toggleSidebar() {
+            document.getElementById("mySidebar").classList.toggle('open');
+            document.getElementById("main-content").classList.toggle('shifted');
+        }
+    </script>
+</body>
+</html>

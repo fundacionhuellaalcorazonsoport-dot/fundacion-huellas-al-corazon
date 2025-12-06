@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Adopciones - Huellas al Corazón</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* ESTILO CORREGIDO PARA QUE OCUPE EL ANCHO CORRECTO */
+        .adoption-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            
+            /* AQUÍ ESTÁ EL CAMBIO CLAVE PARA EL ANCHO: */
+            width: 90%;           /* Ocupa el 90% de la pantalla */
+            max-width: 900px;     /* Pero no te pases del ancho del título */
+            margin: 0 auto 30px auto; /* Centrado horizontalmente y margen abajo */
+            box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
+            
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-top: 5px solid var(--color-success);
+            
+            /* Diseño interno */
+            display: grid;
+            grid-template-columns: 180px 1fr; /* Foto fija, resto flexible */
+            gap: 25px;
+            align-items: start;
+        }
+
+        .dog-profile-img {
+            width: 100%; /* Se adapta al ancho de su columna (180px) */
+            height: 180px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 3px solid var(--color-gris-claro);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .dog-info h2 {
+            margin-top: 0;
+            color: var(--color-azul-electrico);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        /* SECCIÓN DE FOTOS (Compacta) */
+        .followup-container {
+            grid-column: 1 / -1; /* Ocupa todo el ancho abajo */
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px solid #eee;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Columnas responsivas */
+            gap: 20px;
+        }
+
+        .photo-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px dashed var(--color-plateado);
+            position: relative;
+            transition: border-color 0.3s;
+        }
+        .photo-box:hover {
+            border-color: var(--color-azul-electrico);
+        }
+
+        .photo-box h4 {
+            font-size: 1rem;
+            margin: 0 0 10px 0;
+            color: var(--color-fucsia);
+        }
+        
+        /* Input file personalizado */
+        .custom-file-upload {
+            display: inline-block;
+            padding: 8px 15px;
+            cursor: pointer;
+            background: var(--color-azul-electrico);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            font-family: 'Patrick Hand', 'MV Boli', cursive;
+        }
+        .custom-file-upload:hover { background: #008cc0; transform: translateY(-2px); }
+        input[type="file"] { display: none; } 
+
+        /* Vista Previa */
+        .preview-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none; 
+            border: 2px solid var(--color-fucsia);
+        }
+        .existing-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--color-success);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Alerta de Retraso */
+        .alert-delay {
+            background-color: #ffebee;
+            color: var(--color-error);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            border: 1px solid #ffcdd2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        /* Badge de Estado */
+        .status-badge {
+            font-size: 0.9rem; 
+            background: var(--color-success); 
+            color: white; 
+            padding: 5px 12px; 
+            border-radius: 20px;
+            vertical-align: middle;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .adoption-card { 
+                grid-template-columns: 1fr; /* Una sola columna en móviles */
+                text-align: center; 
+            }
+            .dog-profile-img { 
+                width: 150px; 
+                height: 150px; 
+                margin: 0 auto; 
+            }
+            .dog-info h2 { 
+                justify-content: center; 
+            }
+            .dog-info p {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars icon-collapsed"></i></button>
+
+    <header><nav class="navbar"><div class="logo">Panel de Adoptante</div></nav></header>
+    
+    <div id="mySidebar" class="sidebar">
+        <a href="{{ url_for('index') }}"><i class="fas fa-home icon"></i> <span class="link-text">Inicio</span></a>
+        <a href="{{ url_for('adopt') }}"><i class="fas fa-paw icon"></i> <span class="link-text">¡Adoptar Ahora!</span></a>
+        {% if logged_in %}
+        <a href="{{ url_for('my_adoptions') }}"><i class="fas fa-heart icon"></i> <span class="link-text">Mis Adopciones</span></a>
+            {% if current_user.username == 'gfiguera' %}
+        <a href="{{ url_for('admin') }}"><i class="fas fa-user-shield icon"></i> <span class="link-text">Administración</span></a>
+        <a href="{{ url_for('schedule_page') }}"><i class="fas fa-calendar-alt icon"></i> <span class="link-text">Calendario</span></a>    
+        {% endif %}
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt icon"></i> <span class="link-text">Cerrar Sesión</span></a>
+        {% else %}
+            <a href="{{ url_for('login_page') }}"><i class="fas fa-sign-in-alt icon"></i> <span class="link-text">Iniciar Sesión</span></a>
+        {% endif %}
+        <a href="{{ url_for('how_to_help') }}"><i class="fas fa-hand-holding-heart icon"></i> <span class="link-text">Ayuda</span></a>
+        <a href="{{ url_for('contact_page') }}"><i class="fas fa-envelope icon"></i> <span class="link-text">Contacto</span></a>
+    </div>
+
+    <div id="main-content" style="padding-top: 100px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-message-container">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-message-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="content-card">
+            <h1 style="color: var(--color-azul-electrico);">Mis Adopciones</h1>
+            <p>Sube las fotos de evidencia para completar el proceso de adopción.</p>
+        </div>
+
+        {% if dogs %}
+            {% for dog in dogs %}
+            <div class="adoption-card">
+                <div>
+                    <img src="{{ url_for('static', filename='uploads/' + dog.photo_path) }}" class="dog-profile-img">
+                </div>
+                
+                <div class="dog-info">
+                    <h2>{{ dog.name }} <span class="status-badge"><i class="fas fa-check"></i> Adoptado</span></h2>
+                    <p style="margin: 5px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-calendar-alt" style="color: var(--color-fucsia);"></i> <strong>Fecha:</strong> {{ dog.adoption_date }}
+                    </p>
+                    <p style="font-size: 1.1rem; color: #555; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-paw" style="color: var(--color-azul-electrico);"></i> {{ dog.breed }} | {{ dog.sex }}
+                    </p>
+                </div>
+
+                <div class="followup-container">
+                    <h3 style="color: var(--color-fucsia); font-size: 1.3rem; margin-bottom: 20px; text-align: center;">
+                        <i class="fas fa-camera"></i> Evidencia Fotográfica
+                    </h3>
+                    
+                    <div class="photos-grid">
+                        <div class="photo-box">
+                            <h4>1. Día de Adopción</h4>
+                            {% if dog.photo_adoption_day %}
+                                <img src="{{ url_for('static', filename='uploads/' + dog.photo_adoption_day) }}" class="existing-img">
+                                <p style="color: var(--color-success); font-weight: bold; margin-top: 5px;"><i class="fas fa-check-circle"></i> ¡Subida!</p>
+                            {% else %}
+                                <img id="preview-1-{{ dog.id }}" class="preview-img" src="#">
+                                
+                                <form action="{{ url_for('upload_followup', dog_id=dog.id) }}" method="POST" enctype="multipart/form-data">
+                                    <input type="hidden" name="type_photo" value="adoption_day">
+                                    <label class="custom-file-upload">
+                                        <input type="file" name="photo" accept="image/*" onchange="previewImage(this, 'preview-1-{{ dog.id }}')" required>
+                                        <i class="fas fa-cloud-upload-alt"></i> Seleccionar Foto
+                                    </label>
+                                    <button type="submit" class="button primary" style="padding: 6px 20px; font-size: 0.9rem; margin-top: 10px;">Guardar</button>
+                                </form>
+                            {% endif %}
+                        </div>
+
+                        <div class="photo-box">
+                            <h4>2. A las 2 Semanas</h4>
+                            
+                            {% set days_passed = 0 %}
+                            {% if dog.adoption_date %}
+                                {% set days_passed = (current_date - dog.adoption_date).days %}
+                            {% endif %}
+
+                            {% if not dog.photo_followup and days_passed > 15 %}
+                                <div class="alert-delay">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>¡Retraso! (+15 días sin foto)</span>
+                                </div>
+                            {% endif %}
+
+                            {% if dog.photo_followup %}
+                                <img src="{{ url_for('static', filename='uploads/' + dog.photo_followup) }}" class="existing-img">
+                                <p style="color: var(--color-success); font-weight: bold; margin-top: 5px;"><i class="fas fa-check-circle"></i> ¡Subida!</p>
+                            {% else %}
+                                <img id="preview-2-{{ dog.id }}" class="preview-img" src="#">
+                                <form action="{{ url_for('upload_followup', dog_id=dog.id) }}" method="POST" enctype="multipart/form-data">
+                                    <input type="hidden" name="type_photo" value="followup">
+                                    <label class="custom-file-upload">
+                                        <input type="file" name="photo" accept="image/*" onchange="previewImage(this, 'preview-2-{{ dog.id }}')" required>
+                                        <i class="fas fa-cloud-upload-alt"></i> Seleccionar Foto
+                                    </label>
+                                    <button type="submit" class="button primary" style="padding: 6px 20px; font-size: 0.9rem; margin-top: 10px;">Guardar</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="content-card">
+                <h3>No tienes adopciones registradas aún.</h3>
+                <p>¡Visita la sección de adopción para encontrar a tu compañero ideal!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function toggleSidebar() {
+            document.getElementById("mySidebar").classList.toggle('open');
+            document.getElementById("main-content").classList.toggle('shifted');
+        }
+
+        // FUNCIÓN PARA VISTA PREVIA
+        function previewImage(input, imgId) {
+            const preview = document.getElementById(imgId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

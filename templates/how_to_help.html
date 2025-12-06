@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo Ayudarnos - Huellas al Corazón</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Estilos específicos para esta página */
+        .help-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* Eliminados los estilos del carrusel que ya no se usan */
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars icon-collapsed"></i> <i class="fas fa-times icon-expanded" style="display: none;"></i>
+    </button>
+
+    <header>
+        <nav class="navbar">
+            <div class="logo">Huellas al Corazón</div>
+        </nav>
+    </header>
+
+   <div id="mySidebar" class="sidebar">
+        <a href="{{ url_for('index') }}"><i class="fas fa-home icon"></i> <span class="link-text">Inicio</span></a>
+        <a href="{{ url_for('adopt') }}"><i class="fas fa-paw icon"></i> <span class="link-text">¡Adoptar Ahora!</span></a>
+        
+        {% if logged_in %}
+        <a href="{{ url_for('my_adoptions') }}"><i class="fas fa-heart icon"></i> <span class="link-text">Mis Adopciones</span></a>
+            {% if current_user.username == 'gfiguera' %}
+        <a href="{{ url_for('admin') }}"><i class="fas fa-user-shield icon"></i> <span class="link-text">Administración</span></a>
+        <a href="{{ url_for('schedule_page') }}"><i class="fas fa-calendar-alt icon"></i> <span class="link-text">Calendario</span></a>    
+        
+        {% endif %}
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt icon"></i> <span class="link-text">Cerrar Sesión ({{ username }})</span></a>
+        {% else %}
+            <a href="{{ url_for('login_page') }}"><i class="fas fa-sign-in-alt icon"></i> <span class="link-text">Iniciar Sesión</span></a>
+        {% endif %}
+        <a href="{{ url_for('how_to_help') }}"><i class="fas fa-hand-holding-heart icon"></i> <span class="link-text">Cómo Ayudarnos</span></a>
+         <a href="{{ url_for('faq') }}"><i class="fas fa-question-circle icon"></i> <span class="link-text">Preguntas Frecuentes</span></a>
+        <a href="{{ url_for('contact_page') }}"><i class="fas fa-envelope icon"></i> <span class="link-text">Contacto</span></a>
+    </div>
+
+
+    <div id="main-content">
+        
+        <div class="help-page-container">
+            <div class="content-card" style="text-align: center; margin-bottom: 40px;">
+                <h1 style="color: var(--color-fucsia); font-size: 2.5rem;">Tu Apoyo Cambia Vidas <i class="fas fa-heart" style="color: var(--color-error);"></i></h1>
+                <p>Cada aporte, grande o pequeño, nos ayuda a seguir rescatando y llenando de amor a más peludos.</p>
+            </div>
+
+            <!-- SECCIÓN: TIPOS DE DONACIONES -->
+            <div class="content-card">
+                <h2 style="color: var(--color-azul-electrico); text-align: center;">
+                    <i class="fas fa-gift"></i> ¿Qué Necesitamos?
+                </h2>
+                <p style="text-align: center;">Estas son las formas más directas en las que puedes colaborar con nuestros rescatados:</p>
+                
+                <div class="donations-grid">
+                    <div class="donation-card">
+                        <div class="donation-icon-container">
+                            <i class="fas fa-bowl-food"></i>
+                        </div>
+                        <h3>Alimento y Aportes</h3>
+                        <p>Perrarina para cachorros y adultos, o aportes económicos para cubrir gastos veterinarios urgentes.</p>
+                    </div>
+                    <div class="donation-card">
+                        <div class="donation-icon-container">
+                            <i class="fas fa-pump-soap"></i>
+                        </div>
+                        <h3>Limpieza</h3>
+                        <p>Desinfectante, cloro, jabón, escobas y bolsas de basura para mantener sus espacios impecables.</p>
+                    </div>
+                    <div class="donation-card">
+                        <div class="donation-icon-container">
+                            <i class="fas fa-house-chimney-medical"></i>
+                        </div>
+                        <h3>Insumos Médicos</h3>
+                        <p>Gasas, alcohol, jeringas, vitaminas y medicamentos básicos (previa consulta).</p>
+                    </div>
+                    <div class="donation-card">
+                        <div class="donation-icon-container">
+                            <i class="fas fa-trowel-bricks"></i>
+                        </div>
+                        <h3>Logística</h3>
+                        <p>Kennels, jaulas de transporte, camitas y materiales de construcción para mejorar el refugio.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: SERVICIO COMUNITARIO -->
+            <div class="content-card" id="servicio-comunitario">
+                <div class="cute-decoration">🐾🎓</div>
+                <h2 style="color: var(--color-fucsia); text-align: center;">Servicio Comunitario y Labor Social</h2>
+                
+                <div class="community-service-section">
+                    <!-- Información -->
+                    <div class="community-info">
+                        <h3 style="color: var(--color-azul-electrico);">¡Únete a nuestro equipo!</h3>
+                        <p>En <strong>Fundación Huellas al Corazón</strong>, abrimos nuestras puertas a estudiantes de educación media y universitaria para que realicen su labor social con nosotros.</p>
+                        <p>Estamos ubicados en <strong>San Bernardino, Caracas</strong> (Edificio San Vicente, cerca de Crema Paraíso), y ofrecemos un ambiente seguro donde podrás aprender y ayudar.</p>
+                        <p><strong>Actividades que podrás realizar:</strong></p>
+                        <ul>
+                            <li>Alimentación y cuidado básico de los cachorros.</li>
+                            <li>Socialización y juegos con los rescatados.</li>
+                            <li>Apoyo en jornadas de adopción y recolección.</li>
+                            <li>Mantenimiento y limpieza de áreas.</li>
+                            <li>Apoyo administrativo y logístico.</li>
+                        </ul>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+                            <i class="fas fa-info-circle"></i> Garantizamos la supervisión y la firma de tus horas de cumplimiento conforme a la ley.
+                        </p>
+                    </div>
+
+                    <!-- Formulario de WhatsApp -->
+                    <div class="whatsapp-form-card">
+                        <h3><i class="fab fa-whatsapp"></i> Postúlate Aquí</h3>
+                        <p style="font-size: 0.9rem; text-align: center; margin-bottom: 20px;">
+                            Completa tus datos y envía tu solicitud directamente a nuestro WhatsApp oficial.
+                        </p>
+                        <form id="community-form" onsubmit="sendToWhatsApp(event)">
+                            <div class="form-group">
+                                <label for="student-name"><i class="fas fa-user"></i> Nombre:</label>
+                                <input type="text" id="student-name" required placeholder="Tu nombre">
+                            </div>
+                            <div class="form-group">
+                                <label for="student-lastname"><i class="fas fa-user-tag"></i> Apellido:</label>
+                                <input type="text" id="student-lastname" required placeholder="Tu apellido">
+                            </div>
+                            <div class="form-columns" style="display: flex; gap: 10px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="student-age"><i class="fas fa-birthday-cake"></i> Edad:</label>
+                                    <input type="number" id="student-age" required placeholder="Ej: 16">
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="student-hours"><i class="fas fa-clock"></i> Horas:</label>
+                                    <input type="number" id="student-hours" required placeholder="Ej: 120" value="120">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="student-school"><i class="fas fa-school"></i> Colegio/Universidad:</label>
+                                <input type="text" id="student-school" required placeholder="Nombre de tu institución">
+                            </div>
+                            <div class="form-group">
+                                <label for="student-ci"><i class="fas fa-id-card"></i> Cédula de Identidad:</label>
+                                <input type="text" id="student-ci" required placeholder="V-12345678">
+                            </div>
+                            
+                            <button type="submit" class="btn-whatsapp">
+                                <i class="fab fa-whatsapp"></i> Enviar Solicitud
+                            </button>
+                            <p style="font-size: 0.8rem; text-align: center; color: #999; margin-top: 10px;">
+                                Al hacer clic, se abrirá WhatsApp Web o tu App con el mensaje listo para enviar.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- Fin help-page-container -->
+
+    </div> <div class="dogs-at-bottom-container">
+        <img src="{{ url_for('static', filename='pie de pagina.png') }}" alt="Perros en el suelo" class="dogs-at-bottom-image">
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Huellas al Corazón. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Lógica del sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById("mySidebar");
+            const mainContent = document.getElementById("main-content");
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('shifted');
+            } else {
+                sidebar.classList.add('open');
+                mainContent.classList.add('shifted');
+            }
+        }
+        window.onclick = function(event) {
+            const sidebar = document.getElementById("mySidebar");
+            const toggleButton = document.querySelector(".sidebar-toggle");
+            if (sidebar && toggleButton && !sidebar.contains(event.target) && !toggleButton.contains(event.target) && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                document.getElementById("main-content").classList.remove('shifted');
+            }
+        }
+
+        // LÓGICA DEL FORMULARIO DE WHATSAPP
+        function sendToWhatsApp(event) {
+            event.preventDefault();
+
+            // 1. Capturar datos
+            const name = document.getElementById('student-name').value.trim();
+            const lastname = document.getElementById('student-lastname').value.trim();
+            const age = document.getElementById('student-age').value.trim();
+            const hours = document.getElementById('student-hours').value.trim();
+            const school = document.getElementById('student-school').value.trim();
+            const ci = document.getElementById('student-ci').value.trim();
+
+            // 2. Número de destino (Actualizado)
+            const phoneNumber = "584242962402"; // Número actualizado sin '+' ni espacios
+
+            // 3. Construir el mensaje con formato
+            let message = `🐾 *SOLICITUD DE SERVICIO COMUNITARIO* 🐾%0A%0A`;
+            message += `Hola Fundación Huellas al Corazón, me gustaría realizar mi labor social con ustedes. Mis datos son:%0A%0A`;
+            message += `👤 *Nombre:* ${name} ${lastname}%0A`;
+            message += `🎂 *Edad:* ${age} años%0A`;
+            message += `🏫 *Institución:* ${school}%0A`;
+            message += `🆔 *Cédula:* ${ci}%0A`;
+            message += `⏱ *Horas a cumplir:* ${hours} hrs%0A%0A`;
+            message += `Quedo atento/a a sus indicaciones. ¡Gracias!`;
+
+            // 4. Crear el enlace de WhatsApp API y abrirlo
+            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+        }
+    </script>
+</body>
+</html>

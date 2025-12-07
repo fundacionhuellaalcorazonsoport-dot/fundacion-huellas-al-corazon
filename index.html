@@ -6,7 +6,7 @@
     <title>Huellas al Corazón - Inicio</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
-    <link rel="stylesheet" href="./static/style.css">
+    <link rel="stylesheet" href="./style.css">
     <style>
         /* Contenedor editable para las fotos del grid */
         .editable-container {
@@ -211,7 +211,7 @@
     </div> 
     
     <div class="dogs-at-bottom-container">
-        <img src="{{ url_for('static', filename='pie de pagina.png') }}" alt="Perros en el suelo" class="dogs-at-bottom-image">
+        <img src="{{ url_for(filename='pie de pagina.png') }}" alt="Perros en el suelo" class="dogs-at-bottom-image">
     </div>
 
     <footer>

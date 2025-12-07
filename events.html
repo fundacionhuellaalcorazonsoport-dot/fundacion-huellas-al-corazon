@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos y Noticias - Huellas al Corazón</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        /* ESTILOS ESPECÍFICOS PARA MEJORAR LA LECTURA */
+        .slide-meta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--color-fucsia);
+            padding-left: 15px;
+        }
+
+        .slide-date {
+            font-size: 1.6rem; /* MÁS GRANDE */
+            font-weight: 800;
+            color: var(--color-fucsia);
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .slide-location {
+            font-size: 1.4rem; /* UBICACIÓN VISIBLE */
+            color: var(--color-azul-electrico);
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .slide-title {
+            font-size: 4rem; /* Título grande */
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .slide-title { font-size: 2.5rem; }
+            .slide-date { font-size: 1.3rem; }
+            .slide-location { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars icon-collapsed"></i> <i class="fas fa-times icon-expanded" style="display: none;"></i>
+    </button>
+    <header>
+        <nav class="navbar">
+            <div class="logo">Huellas al Corazón</div>
+        </nav>
+    </header>
+    <div id="mySidebar" class="sidebar">
+        <a href="{{ url_for('index') }}"><i class="fas fa-home icon"></i> <span class="link-text">Inicio</span></a>
+        <a href="{{ url_for('adopt') }}"><i class="fas fa-paw icon"></i> <span class="link-text">¡Adoptar Ahora!</span></a>
+        
+        {% if logged_in %}
+        <a href="{{ url_for('my_adoptions') }}"><i class="fas fa-heart icon"></i> <span class="link-text">Mis Adopciones</span></a>
+            {% if current_user.username == 'gfiguera' %}
+        <a href="{{ url_for('admin') }}"><i class="fas fa-user-shield icon"></i> <span class="link-text">Administración</span></a>
+        <a href="{{ url_for('schedule_page') }}"><i class="fas fa-calendar-alt icon"></i> <span class="link-text">Calendario</span></a>    
+        
+        {% endif %}
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt icon"></i> <span class="link-text">Cerrar Sesión ({{ username }})</span></a>
+        {% else %}
+            <a href="{{ url_for('login_page') }}"><i class="fas fa-sign-in-alt icon"></i> <span class="link-text">Iniciar Sesión</span></a>
+        {% endif %}
+        <a href="{{ url_for('how_to_help') }}"><i class="fas fa-hand-holding-heart icon"></i> <span class="link-text">Cómo Ayudarnos</span></a>
+         <a href="{{ url_for('faq') }}"><i class="fas fa-question-circle icon"></i> <span class="link-text">Preguntas Frecuentes</span></a>
+        <a href="{{ url_for('contact_page') }}"><i class="fas fa-envelope icon"></i> <span class="link-text">Contacto</span></a>
+    </div>
+
+
+    <div id="main-content">
+        </div>
+
+    {% if events %}
+    <div class="event-slider-container">
+        <a href="{{ url_for('index') }}" class="slider-close-btn"><i class="fas fa-times"></i></a>
+
+        <div class="event-slides-wrapper">
+            {% for event in events %}
+            <div class="slide">
+                <div class="slide-text-content">
+                    <div class="slide-meta-info">
+                        <span class="slide-date">
+                            <i class="fas fa-calendar-day"></i> {{ event.date }} &nbsp;|&nbsp; <i class="fas fa-clock"></i> {{ event.time }}
+                        </span>
+                        <span class="slide-location">
+                            <i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                        </span>
+                    </div>
+
+                    <h1 class="slide-title">{{ event.title }}</h1>
+                    <p class="slide-description">{{ event.description }}</p>
+
+                    {% if username == 'gfiguera' %}
+                    <div class="slide-admin-actions" style="margin-top: 20px;">
+                        <button class="button delete" onclick="deleteEvent({{ event.id }})" style="background-color: var(--color-error); color: white; padding: 10px 20px; border-radius: 50px; border: none; cursor: pointer; font-weight: bold;">
+                            <i class="fas fa-trash"></i> Eliminar Evento
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="slide-image-container">
+                    <img src="{{ url_for('static', filename='uploads/' + event.photo_path if event.photo_path else 'placeholder_event.jpg') }}" 
+                         alt="Foto de {{ event.title }}">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button class="slider-arrow prev"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-arrow next"><i class="fas fa-chevron-right"></i></button>
+        <div class="slider-dots">
+            {% for event in events %}
+            <button class="dot"></button>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div id="main-content">
+        <div class="content-card empty-state" style="text-align: center; padding: 50px;">
+            <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--color-fucsia); margin-bottom: 15px;"></i>
+            <h2>No hay eventos próximos.</h2>
+            <p>Vuelve pronto para ver nuestras actividades de adopción y recaudación.</p>
+            <a href="{{ url_for('index') }}" class="button primary" style="margin-top: 20px;">Volver al Inicio</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("mySidebar").classList.toggle('open');
+            document.getElementById("main-content").classList.toggle('shifted');
+        }
+
+        const sliderContainer = document.querySelector('.event-slider-container');
+        if (sliderContainer) {
+            const slides = document.querySelectorAll('.slide');
+            const nextButton = document.querySelector('.slider-arrow.next');
+            const prevButton = document.querySelector('.slider-arrow.prev');
+            const dots = document.querySelectorAll('.dot');
+            let currentIndex = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.remove('current-slide');
+                    dots[i].classList.remove('current-slide');
+                });
+                slides[index].classList.add('current-slide');
+                dots[index].classList.add('current-slide');
+            }
+
+            nextButton.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                showSlide(currentIndex);
+            });
+
+            prevButton.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                showSlide(currentIndex);
+            });
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentIndex = index;
+                    showSlide(currentIndex);
+                });
+            });
+
+            // Auto-play opcional (comentado si no lo quieres)
+            // setInterval(() => nextButton.click(), 5000);
+
+            showSlide(currentIndex);
+        }
+
+        function deleteEvent(eventId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este evento? Esta acción es irreversible.')) return;
+            
+            fetch(`/api/events/${eventId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.reload(); 
+                    } else {
+                        alert('Error: ' + (data.message || 'Error desconocido al eliminar.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en la eliminación:', error);
+                    alert('Error de conexión al eliminar el evento.');
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Huellas al Corazón</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars icon-collapsed"></i> <i class="fas fa-times icon-expanded" style="display: none;"></i> </button>
+
+    <header>
+        <nav class="navbar">
+            <div class="logo">Huellas al Corazón</div>
+        </nav>
+    </header>
+
+    <div id="mySidebar" class="sidebar">
+        <a href="{{ url_for('index') }}"><i class="fas fa-home icon"></i> <span class="link-text">Inicio</span></a>
+        <a href="{{ url_for('adopt') }}"><i class="fas fa-paw icon"></i> <span class="link-text">¡Adoptar Ahora!</span></a>
+        
+        {% if logged_in %}
+        <a href="{{ url_for('my_adoptions') }}"><i class="fas fa-heart icon"></i> <span class="link-text">Mis Adopciones</span></a>
+            {% if current_user.username == 'gfiguera' %}
+        <a href="{{ url_for('admin') }}"><i class="fas fa-user-shield icon"></i> <span class="link-text">Administración</span></a>
+        <a href="{{ url_for('schedule_page') }}"><i class="fas fa-calendar-alt icon"></i> <span class="link-text">Calendario</span></a>    
+        
+        {% endif %}
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt icon"></i> <span class="link-text">Cerrar Sesión ({{ username }})</span></a>
+        {% else %}
+            <a href="{{ url_for('login_page') }}"><i class="fas fa-sign-in-alt icon"></i> <span class="link-text">Iniciar Sesión</span></a>
+        {% endif %}
+        <a href="{{ url_for('how_to_help') }}"><i class="fas fa-hand-holding-heart icon"></i> <span class="link-text">Cómo Ayudarnos</span></a>
+         <a href="{{ url_for('faq') }}"><i class="fas fa-question-circle icon"></i> <span class="link-text">Preguntas Frecuentes</span></a>
+        <a href="{{ url_for('contact_page') }}"><i class="fas fa-envelope icon"></i> <span class="link-text">Contacto</span></a>
+    </div>
+
+
+    <div id="main-content">
+        <div class="content-card">
+            <h1 class="page-title"><i class="fas fa-envelope icon" style="color: var(--color-fucsia);"></i> Contáctanos</h1>
+        </div>
+
+        <div class="contact-page-content">
+            <p style="text-align: center; max-width: 600px; margin-bottom: 40px; font-size: 1.1rem; color: var(--color-texto-oscuro);">
+              
+            </p>
+
+            <div class="contact-container">
+                <div class="card instagram">
+                    <div class="face face1">
+                        <div class="content">
+                            <i class="fab fa-instagram"></i>
+                            <h3>Instagram</h3>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <div class="content">
+                            <p>Síguenos para ver fotos y videos de nuestros rescatados.</p>
+                            <a href="https://www.instagram.com/huellasalcorazonve?igsh=MXc4eDFmbmIxeDEwMQ==" target="_blank">@huellasalcorazonve</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card tiktok">
+                    <div class="face face1">
+                        <div class="content">
+                            <i class="fab fa-tiktok"></i>
+                            <h3>TikTok</h3>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <div class="content">
+                            <p>Descubre nuestros videos virales y contenido divertido.</p>
+                            <a href="https://www.tiktok.com/@huellasalcorazonve?_t=ZM-90UrCkuNjWG&_r=1" target="_blank">@huellasalcorazonve</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card whatsapp">
+                    <div class="face face1">
+                        <div class="content">
+                            <i class="fab fa-whatsapp"></i>
+                            <h3>WhatsApp</h3>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <div class="content">
+                            <p>Contáctanos directamente para más información.</p>
+                            <a href="https://wa.me/584124236901" target="_blank">0412-4236901</a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="card facebook">
+                    <div class="face face1">
+                        <div class="content">
+                            <i class="fab fa-facebook-f"></i>
+                            <h3>Facebook</h3>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <div class="content">
+                            <p>Únete a nuestra comunidad y comparte nuestras historias.</p>
+                            <a href="https://www.facebook.com/huellas.alcorazon.5/photos_of/" target="_blank">@huellas.alcorazon</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card twitter">
+                    <div class="face face1">
+                        <div class="content">
+                            <i class="fab fa-twitter"></i>
+                            <h3> X </h3>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <div class="content">
+                            <p>Entérate de las últimas actualizaciones al momento.</p>
+                            <a href="https://x.com/huellasalcorazn" target="_blank">@huellasalcorazn</a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                 <div class="card location">
+                    <div class="face face1">
+                        <div class="content">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h3>Ubicación</h3>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <div class="content">
+                            <p>Encuentra nuestro punto de referencia para visitas y donaciones.</p>
+                            <a href="#" target="_blank">Ver en Mapa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            </div> <div class="dogs-at-bottom-container">
+        <img src="{{ url_for('static', filename='pie de pagina.png') }}" alt="Perros en el suelo" class="dogs-at-bottom-image">
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Huellas al Corazón. Todos los derechos reservados.</p>
+    </footer>
+    </div>
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("mySidebar");
+            const mainContent = document.getElementById("main-content");
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('shifted');
+            } else {
+                sidebar.classList.add('open');
+                mainContent.classList.add('shifted');
+            }
+        }
+    </script>
+</body>
+</html>

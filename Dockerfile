@@ -1,18 +1,52 @@
-# -----------------------------------------------------------
-# CAMBIO CRÍTICO: Actualizado a Python 3.10 para soportar click==8.2.1
-FROM python:3.10-slim
+# Stage 1: Build the Application
+# We use python:3.10-slim as the base for building and installing dependencies.
+FROM python:3.10-slim AS build
 
-# Establece el directorio de trabajo
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/src/app
 
-# Copia el archivo de requisitos e instala las dependencias
-# (Asegúrate de que requirements.txt contenga gunicorn y psycopg2-binary)
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install system dependencies needed for building Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends     build-essential     gcc     && rm -rf /var/lib/apt/lists/*
 
-# Copia el resto del código de tu aplicación (app.py, templates, static, etc.)
+# Create a virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy requirements.txt if it exists (using wildcard to avoid build failure)
+COPY requirements.tx[t] ./requirements.txt
+
+# Install Python dependencies only if requirements.txt exists
+RUN pip install --upgrade pip &&     if [ -f requirements.txt ]; then         pip install -r requirements.txt;     fi
+
+# Copy the rest of the application source code
 COPY . .
 
-# Comando de ejecución de Gunicorn. Fly.io usa el puerto 8080 por defecto.
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
-# -----------------------------------------------------------
+# Stage 2: Create the Final Production Image
+# We use python:3.10-slim as a minimal runtime image.
+FROM python:3.10-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Install only runtime dependencies if needed
+RUN apt-get update && apt-get install -y --no-install-recommends     libpq5     && rm -rf /var/lib/apt/lists/*
+
+# Copy the virtual environment from the build stage
+COPY --from=build /opt/venv /opt/venv
+
+# Copy the application code
+COPY --from=build /usr/src/app .
+
+# Set the virtual environment as the active Python environment
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create a non-root user to run the application
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /usr/src/app
+USER appuser
+
+# Expose the port your app runs on
+ENV PORT=8080
+EXPOSE $PORT
+
+# Define the command to start your application
+CMD ["python", "app.py"]

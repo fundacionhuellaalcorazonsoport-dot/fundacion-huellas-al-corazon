@@ -1,28 +1,37 @@
 import os
-import random  
-import string  
+import random 
+import string 
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_mail import Mail, Message # IMPORTANTE: Importar Mail
+from flask_mail import Mail, Message 
 from datetime import datetime 
 
 app = Flask(__name__)
 
 
-# --- CONFIGURACIÓN DE LA BASE DE DATOS INTELIGENTE ---
-database_url = os.environ.get('DATABASE_URL')
+# --- CONFIGURACIÓN DE LA BASE DE DATOS INTELIGENTE (CORREGIDA) ---
 
+# 1. Adaptar la URL de Postgres (Necesario para SQLAlchemy 2.0+ en entornos Cloud)
+database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-# Instrucción 1: La URI de la base de datos
+
+# 2. Instrucción: Usar la variable de entorno o la configuración de desarrollo local
+# NOTA: Reemplaza tu configuración local de respaldo para que coincida con tu entorno local.
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'postgresql://postgres:gfiguera@localhost:5432/SQLALCHEMY_DATABASE_URI?client_encoding=UTF8'
 
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'una_clave_secreta_muy_segura'
+
+# 3. CORRECCIÓN CRÍTICA: La Clave Secreta DEBE leerse del entorno (os.environ.get)
+# Esto garantiza que se use la clave que estableciste con 'fly secrets set'.
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'una_clave_secreta_de_respaldo_LOCAL')
+
+# --- CONFIGURACIÓN DE ARCHIVOS Y EXTENSIONES ---
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 

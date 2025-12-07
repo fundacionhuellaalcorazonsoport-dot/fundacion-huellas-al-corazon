@@ -1,0 +1,3060 @@
+/* Importamos la fuente Patrick Hand de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+/* style.css */
+
+:root {
+    --color-fucsia: #FF007F; /* Fucsia Intenso */
+    --color-azul-electrico: #00BFFF; /* Azul Eléctrico/Cian */
+    --color-blanco: #FFFFFF; /* Blanco puro */
+    --color-gris-claro: #F0F2F5; /* Para fondos sutiles */
+    --color-texto-oscuro: #333333;
+    --color-plateado: #A6A6A6; /* Gris Plateado del logo */
+    --color-texto-claro: #FFFFFF;
+    --color-borde: #DDDDDD;
+    --color-error: #e74c3c;
+    --color-success: #2ecc71; /* Verde para éxito */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 70px; /* Nuevo: Ancho cuando está colapsado */
+}
+
+/* Reset básico */
+* html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+}
+body {
+    /* AQUI ESTA EL CAMBIO IMPORTANTE: Usamos Patrick Hand como fuente principal */
+    font-family: 'Patrick Hand', 'MV Boli', cursive, sans-serif;
+    font-size: 1.1rem; /* Un poco más grande para que se lea mejor esta fuente */
+    background-color: rgba(240, 242, 245, 0.4);
+    background-image: url('patron de fondo para oagina.png'); /* Ruta a tu imagen de fondo */
+    background-repeat: repeat; /* Para que la imagen se repita y cubra todo el fondo */
+    background-size: auto; /* Puedes ajustar a 'contain' o 'cover' si la imagen es grande y no quieres que se repita, o 'auto' si es un patrón pequeño */
+    background-attachment: fixed; /* Opcional: Para que el fondo no se mueva al hacer scroll */
+    color: var(--color-texto-oscuro);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* --- Navbar --- */
+.navbar {
+    background-color: var(--color-azul-electrico); /* O usa var(--color-azul-electrico) si prefieres azul */
+    padding: 1rem 2rem; /* Mantener un padding para el logo */
+    display: flex;
+    justify-content: center; /* Centrar el logo en la navbar */
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 999; /* Menor que el sidebar-toggle para que el botón esté encima */
+    box-sizing: border-box;
+}
+
+.navbar .logo {
+    color: var(--color-texto-claro);
+    font-size: 1.8rem; /* Un poco más grande para que el logo destaque con la nueva fuente */
+    font-weight: bold;
+    letter-spacing: 1px; /* Un poco de espacio entre letras queda bien con esta fuente */
+}
+
+/* --- Botón para Sidebar- */
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--color-blanco);
+    font-size: 2.5rem;
+    cursor: pointer;
+    z-index: 1001;
+    display: block;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    transition: transform 0.3s ease, color 0.3s ease; /* Añadir transición */
+}
+
+.sidebar-toggle:hover {
+    color: var(--color-fucsia); /* Cambiar color al pasar el ratón */
+    transform: scale(1.1); /* Ligera escala al pasar el ratón */
+}
+
+/* Ajustar posición cuando la barra lateral está abierta para no superponerse con el botón de cerrar */
+.sidebar.open + #main-content .sidebar-toggle { /* Este selector significa: sidebar con la clase 'open' seguido de #main-content, luego .sidebar-toggle (esto es incorrecto, lo arreglaremos en JS) */
+    /* Esta regla será manejada por JS o manipulación directa del botón */
+}
+
+/* Nuevo: Ocultar el icono predeterminado de sidebar-toggle, ya que el closebtn actuará como un alternador */
+.sidebar:not(.open) .sidebar-toggle .icon-collapsed {
+    display: block;
+}
+
+.sidebar.open .sidebar-toggle .icon-collapsed {
+    display: none;
+}
+
+.sidebar:not(.open) .sidebar-toggle .icon-expanded {
+    display: none;
+}
+
+.sidebar.open .sidebar-toggle .icon-expanded {
+    display: block;
+}
+
+/* Estado inicial del contenido principal */
+#main-content {
+    margin-left: var(--sidebar-collapsed-width); /* Desplazado inicialmente por el ancho colapsado */
+}
+
+/* Desplazamiento del contenido principal cuando la barra lateral está abierta */
+#main-content.shifted {
+    margin-left: var(--sidebar-width);
+}
+
+/* --- Sidebar (Menú Lateral) --- */
+.sidebar {
+    height: 100%;
+    width: var(--sidebar-collapsed-width); /* Cambiado de 0 */
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-color: var(--color-plateado); 
+    overflow-x: hidden;
+    transition: 0.5s;
+    /* padding-top: 60px; ELIMINADO */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    display: flex; /* NUEVO: Para alineación interna */
+    flex-direction: column; /* NUEVO: Para alineación interna */
+    align-items: center; /* NUEVO: Centrar elementos horizontalmente en estado colapsado */
+    padding-top: 100px; /* Añadir un poco de padding en la parte superior */
+}
+
+.sidebar.open {
+    width: var(--sidebar-width);
+    align-items: flex-start; /* NUEVO: Alinear elementos al inicio cuando esté abierto */
+}
+
+.sidebar a {
+    padding: 15px 8px; /* Padding ajustado para mejor espaciado icono/texto */
+    text-decoration: none;
+    font-size: 1.2rem; /* Fuente ligeramente más grande para la barra lateral */
+    color: var(--color-gris-claro);
+    display: flex; /* Usar flexbox para alineación de icono y texto */
+    align-items: center; /* Alinear icono y texto verticalmente */
+    gap: 15px; /* Espacio entre icono y texto */
+    transition: 0.3s;
+    width: 100%; /* Hacer que los enlaces ocupen todo el ancho para el efecto hover */
+    box-sizing: border-box; /* Incluir padding en el ancho */
+    justify-content: flex-start; /* Alinear contenido al inicio */
+}
+
+/* Esta clase se agregará al <span> alrededor del texto */
+.sidebar .link-text {
+    white-space: nowrap; /* Evitar el ajuste de texto */
+    overflow: hidden; /* Ocultar el desbordamiento cuando está colapsado */
+    opacity: 1;
+    transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+/* Cuando la barra lateral NO está abierta, ocultar el texto */
+.sidebar:not(.open) .link-text {
+    width: 0; /* Colapsar ancho */
+    opacity: 0; /* Desvanecer texto */
+}
+
+/* Cuando la barra lateral SÍ está abierta, asegurar que el texto sea visible */
+.sidebar.open .link-text {
+    width: auto; /* Permitir que el texto tome su ancho natural */
+    opacity: 1; /* Mostrar texto */
+}
+
+/* Ajustar padding y alineación para enlaces en estado colapsado */
+.sidebar:not(.open) a {
+    justify-content: center; /* Centrar iconos horizontalmente */
+    padding: 15px 0; /* Ajustar padding solo para iconos */
+}
+
+.sidebar a:hover {
+    color: var(--color-blanco);
+    background-color: rgba(255, 255, 255, 0.2); /* Un sutil efecto hover */
+}
+
+/* Estilo para iconos dentro de los enlaces de la barra lateral */
+.sidebar a .icon {
+    font-size: 1.8rem; /* Tamaño de icono más grande */
+    flex-shrink: 0; /* Evitar que el icono se encoja */
+    margin-left: 10px; /* Espacio desde el borde izquierdo */
+}
+
+/* Ocultar texto cuando la barra lateral está colapsada */
+.sidebar:not(.open) a span {
+    display: none;
+}
+
+/* Ajustar padding para el estado colapsado para centrar el icono */
+.sidebar:not(.open) a {
+    padding: 15px 0; /* Centrar el icono verticalmente */
+    justify-content: center; /* Centrar el icono horizontalmente */
+}
+
+/* Contenido principal se desplaza al abrir el sidebar */
+#main-content {
+    transition: margin-left .5s;
+    margin-left: var(--sidebar-collapsed-width); /* Iniciar desplazado por defecto */
+    flex-grow: 1;
+    padding: 20px;
+    padding-top: 80px;
+    box-sizing: border-box;
+    /*max-width: calc(100% - var(--sidebar-collapsed-width));  Ajustar ancho máximo */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    padding-bottom: 50px;
+}
+
+#main-content.shifted {
+    margin-left: var(--sidebar-width); /* Desplazar por el ancho completo de la barra lateral cuando esté abierto */
+    max-width: calc(100% - var(--sidebar-width)); /* Ajustar ancho máximo */
+}
+
+/* --- Nuevos estilos para las tarjetas de contenido --- */
+.content-card {
+    background-color: var(--color-blanco); /* Fondo blanco para la tarjeta */
+    padding: 30px; /* Relleno dentro de la tarjeta */
+    margin: 20px auto; /* Márgenes exteriores y centrado */
+    border-radius: 15px; /* Bordes más redondeados para combinar con la fuente */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    max-width: 900px; /* Ancho máximo para legibilidad */
+    line-height: 1.8; /* Espaciado entre líneas mejorado */
+    box-sizing: border-box; /* Incluye padding en el width/height total */
+}
+
+.content-card:last-child {
+    margin-bottom: 20px; /* Asegura un margen inferior para la última tarjeta */
+}
+
+/* Estilos para la sección principal de bienvenida con fotos animadas */
+#main-content {
+    transition: margin-left .5s;
+    margin-left: 0;
+    flex-grow: 1;
+    padding: 20px;
+    padding-top: 80px;
+    box-sizing: border-box;
+    max-width: 100%;
+
+    /* Estas propiedades Flexbox son CRUCIALES para centrar las tarjetas */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Alinea los elementos al inicio, permite que margin-auto los centre si hay espacio */
+    align-items: center; /* Centra el contenido horizontalmente */
+    min-height: calc(100vh - 100px); /* Asegura que #main-content ocupe casi toda la altura visible */
+    padding-bottom: 50px;
+}
+
+#main-content.shifted {
+    margin-left: var(--sidebar-width);
+}
+
+/* --- Estilos para todas las "tarjetas" de contenido (hero, info, etc.) --- */
+.content-card {
+    background-color: var(--color-blanco); /* Fondo blanco para la tarjeta */
+    padding: 30px; /* Relleno dentro de la tarjeta */
+    margin: 20px auto; /* Márgenes exteriores y centrado horizontal */
+    border-radius: 15px; /* Bordes más redondeados */
+    box-shadow:
+        0 0 5px rgba(255, 0, 127, 0.7), /* Rosado suave */
+        0 0 15px rgba(0, 191, 255, 0.7), /* Azul suave */
+        0 0 2px rgba(255, 0, 127, 0.7) inset, /* Rosado suave interior */
+        0 0 5px rgba(0, 191, 255, 0.7) inset; /* Azul suave interior */
+    max-width: 900px; /* Ancho máximo para legibilidad, ajusta si necesitas más */
+    width: 90%; /* Asegura que ocupe un 90% del espacio disponible, hasta max-width */
+    line-height: 1.8; /* Espaciado entre líneas mejorado */
+    box-sizing: border-box; /* Incluye padding en el width/height total */
+    text-align: center; /* Centra el texto dentro de la tarjeta por defecto */
+}
+
+.content-card:last-child {
+    margin-bottom: 20px; /* Asegura un margen inferior para la última tarjeta */
+}
+
+/* Estilos para la sección principal de bienvenida con fotos animadas */
+.hero-section {
+    /* Eliminamos el padding aquí para que herede el padding de .content-card */
+    /* padding: 4rem 2rem; REMOVED */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--color-blanco); /* Texto blanco para contraste */
+    /* Aseguramos una altura mínima para que la imagen se vea */
+    min-height: 300px; /* Puedes ajustar esta altura según sea necesario */
+    display: flex; /* Usamos flexbox para centrar el contenido verticalmente */
+    flex-direction: column;
+    justify-content: center; /* Centra el contenido verticalmente dentro del hero-section */
+    align-items: flex-start; /* Centra el contenido horizontalmente dentro del hero-section */
+
+    /* Animación para cambiar las imágenes de fondo */
+    animation: changeHeroBackground 40s infinite ease-in-out;
+}
+
+/* Reglas para asegurar la legibilidad del texto sobre las imágenes */
+.hero-section h1,
+.hero-section p {
+    color: var(--color-blanco);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* Sombra para el texto */
+    text-align: center; /* Asegura que el texto dentro del hero-section esté centrado */
+}
+
+/* Definición de la animación de cambio de fondo */
+@keyframes changeHeroBackground {
+    0% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro1.jpeg');
+    }
+    10% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro2.jpeg');
+    }
+    20% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro3.jpeg');
+    }
+    30% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro4.jpeg');
+    }
+    40% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro5.jpeg');
+    }
+     50% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro6.jpeg');
+    }
+     60% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro7.jpeg');
+    }
+     70% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro8.jpeg');
+    }
+     80% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro9.jpeg');
+    }
+     90% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro10.jpeg');
+    }
+     100% {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('perro11.jpeg');
+    }
+}
+
+.button.primary {
+    background-color: var(--color-fucsia);
+    color: var(--color-blanco);
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Patrick Hand', 'MV Boli', cursive; /* Asegurar que los botones usen la fuente */
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-block; /* Para aplicar padding y margen */
+}
+
+.button.primary:hover {
+    background-color: #CC0066; /* Tono más oscuro de fucsia */
+    transform: translateY(-2px);
+}
+
+.info-section {
+    text-align: left;
+    margin-top: 20px; /* Espacio entre secciones si son tarjetas separadas */
+}
+
+.info-section h2 {
+    color: var(--color-azul-electrico);
+    font-size: 2.2rem; /* Título un poco más grande */
+    margin-bottom: 1rem;
+}
+
+.info-section p {
+    font-size: 1.2rem;
+}
+
+
+/* --- Nueva clase para las "tarjetas" de formulario (login y register) --- */
+.form-card {
+    background-color: var(--color-blanco); /* Fondo blanco */
+    padding: 30px; /* Relleno dentro del recuadro, un poco menos que antes */
+    border-radius: 15px; /* Bordes más redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    max-width: 400px; /* Ancho máximo para el recuadro, más angosto */
+    width: 90%; /* Ancho responsivo */
+    text-align: center;
+    box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+    margin: 0 auto; /* Centrar horizontalmente. El centrado vertical lo haremos con el body/main-content */
+
+    /* Propiedades Flexbox para centrar contenido vertical y horizontalmente dentro de la tarjeta */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ajustes para el contenedor principal de contenido, para centrar la "tarjeta" del formulario */
+#main-content {
+    transition: margin-left .5s;
+    margin-left: 0;
+    flex-grow: 1; /* Permite que main-content crezca y ocupe el espacio disponible */
+    padding: 20px;
+    padding-top: 80px; /* Asegura espacio para la navbar */
+    box-sizing: border-box;
+    max-width: 100%;
+
+    /* Estas propiedades Flexbox son CRUCIALES para centrar la tarjeta */
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    justify-content: center; /* Centra el contenido verticalmente */
+    align-items: center; /* Centra el contenido horizontalmente */
+    min-height: calc(100vh - 100px); /* Asegura que #main-content ocupe casi toda la altura visible */
+                                      /* (100vh - (altura_navbar + altura_footer_aprox)) */
+    padding-bottom: 50px; /* Añadir un poco de padding inferior para que el footer no lo toque */
+}
+
+
+/* --- Nueva clase para las "tarjetas" de formulario (login y register) --- */
+.form-card {
+    background-color: var(--color-blanco); /* Fondo blanco */
+    padding: 35px; /* Relleno un poco mayor */
+    border-radius: 20px; /* Bordes muy redondeados */
+    box-shadow:
+        0 0 5px rgba(255, 0, 127, 0.5), /* Rosado suave */
+        0 0 15px rgba(0, 191, 255, 0.3), /* Azul suave */
+        0 0 2px rgba(255, 0, 127, 0.7) inset, /* Rosado suave interior */
+        0 0 5px rgba(0, 191, 255, 0.5) inset; /* Azul suave interior */
+    max-width: 400px; /* Ancho máximo para el recuadro, más angosto */
+    width: 90%; /* Ancho responsivo, usa 90% del espacio disponible hasta max-width */
+    text-align: center;
+    box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+    margin: 20px auto; /* Centrar horizontalmente y dar un pequeño margen superior/inferior */
+
+}
+
+/*.login-container, .register-container { 
+    futuro si quiero variar entre registro e ingresar
+}*/
+
+/* Ajustes para los elementos dentro de las "tarjetas" de formulario */
+.form-card h2 {
+    color: var(--color-azul-electrico);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+.form-card p {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* Ajustes específicos para los grupos de formulario (labels e inputs) */
+.form-group {
+    width: 100%; /* Asegura que el grupo ocupe todo el ancho disponible de la tarjeta */
+    max-width: 300px; /* Limita el ancho de los inputs para que no sean demasiado largos */
+    margin-left: auto; /* Para centrar el form-group dentro de la tarjeta */
+    margin-right: auto; /* Para centrar el form-group dentro de la tarjeta */
+    text-align: left; /* Alinea el texto de la etiqueta a la izquierda */
+    margin-bottom: 15px; /* Espacio entre los grupos de formulario */
+}
+
+.form-group label {
+    display: block; /* Asegura que la etiqueta esté en su propia línea */
+    margin-bottom: 5px; /* Espacio entre la etiqueta y el input */
+    color: var(--color-texto-oscuro);
+    font-size: 1.2rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="email"] {
+    width: 100%; /* Ocupa el 100% del ancho del .form-group (que es max 300px) */
+    padding: 12px;
+    border: 2px solid var(--color-borde);
+    border-radius: 10px; /* Inputs más redondeados */
+    box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+    font-family: 'Patrick Hand', 'MV Boli', cursive; /* Asegurar que los inputs usen la fuente */
+    font-size: 1.1rem;
+}
+
+
+.button.primary {
+    background-color: var(--color-fucsia);
+    color: var(--color-blanco);
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
+    margin-top: 20px; /* Espacio superior para el botón */
+}
+
+.button.primary:hover {
+    background-color: darken(var(--color-fucsia), 10%); /* Oscurece el fucsia al pasar el mouse */
+    transform: translateY(-2px);
+}
+
+/* Mensajes de error y éxito */
+.message.error {
+    color: var(--color-error);
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.message.success {
+    color: var(--color-success);
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+
+/* Ajustes para media queries (revisa esta sección) */
+@media (max-width: 700px) {
+    
+    #main-content {
+        padding-top: 60px;
+        padding: 10px;
+        min-height: calc(100vh - 80px);
+    }
+    .content-card {
+        padding: 20px; /* Ajusta el padding para móviles */
+        margin: 15px auto; /* Márgenes en móviles */
+    }
+   
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--color-borde);
+    border-radius: 10px;
+    box-sizing: border-box; /* Asegura que el padding no aumente el ancho total */
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    font-size: 1.1rem;
+}
+
+.button.secondary {
+    background-color: var(--color-gris-claro);
+    color: var(--color-texto-oscuro);
+    border: 1px solid var(--color-borde);
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.button.secondary:hover {
+    background-color: var(--color-borde);
+    transform: translateY(-2px);
+}
+
+.message.error {
+    color: var(--color-error);
+    margin-top: 10px;
+}
+
+/* --- Estilos para Mensajes Flash --- */
+.flash-message-container {
+    position: relative; /* Permite posicionar mensajes internos */
+    width: 100%;
+    max-width: 900px; /* Igual que content-card */
+    margin: 20px auto 0; /* Margen superior, centrado */
+    text-align: center;
+    box-sizing: border-box;
+    z-index: 100; /* Asegura que esté por encima de otros elementos */
+}
+
+.flash-message {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: var(--color-texto-claro);
+    opacity: 1; /* Por defecto visible */
+    transition: opacity 0.5s ease-out; /* Transición para el desvanecimiento */
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    font-size: 1.2rem;
+}
+
+.flash-message.success {
+    background-color: var(--color-success); /* Fondo verde para éxito */
+    border: 1px solid darken(var(--color-success), 10%);
+}
+
+.flash-message.error {
+    background-color: var(--color-error); /* Fondo rojo para error */
+    border: 1px solid darken(var(--color-error), 10%);
+}
+
+
+/* --- Footer --- */
+footer {
+    background-color: var(--color-texto-oscuro);
+    color: var(--color-texto-claro);
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: auto; /* Empuja el footer hacia abajo */
+    width: 100%;
+    font-size: 1.2rem;
+}
+
+/* Ajustes muy mínimos para mantener el botón de menú visible y funcional */
+
+@media (max-width: 700px) {
+    .navbar {
+        padding: 0.7rem 0.5rem; /* Más compacto en pantallas muy pequeñas */
+    }
+    .navbar .logo {
+        font-size: 1.3rem; /* Ajusta el tamaño del logo */
+    }
+    .sidebar-toggle {
+        font-size: 2rem; /* Ajusta el tamaño del botón de menú */
+        top: 0.7rem; /* Ajusta la posición para que quede bien */
+        left: 0.7rem;
+    }
+    #main-content {
+        padding-top: 60px; /* Ajusta el padding para el contenido */
+        padding: 10px; /* Reduce padding general */
+    }
+    .content-card {
+        padding: 20px; /* Reduce padding de las tarjetas */
+        margin: 10px auto; /* Reduce margen de las tarjetas */
+    }
+    .login-container, .welcome-container {
+        padding: 25px; /* Reduce padding de contenedores de login/welcome */
+        margin-top: 80px;
+    }
+    .flash-message-container {
+        margin: 10px auto 0; /* Ajusta el margen en pantallas pequeñas */
+    }
+}
+
+/* Estilos para la imagen de los perros en la parte inferior */
+.dogs-at-bottom-container {
+    width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+    /* Elimina text-align: center; de aquí si la imagen es display: block */
+    /* text-align: center; */
+
+    padding-bottom: 0; /* Elimina cualquier padding inferior que pueda separarla del footer */
+    margin-bottom: -50px; /* Ajusta este valor para pegar más al footer */
+    position: relative;
+    z-index: 1;
+
+    /* AÑADE O ASEGÚRATE DE ESTO PARA CENTRAR EL CONTENEDOR SI FUERA NECESARIO */
+    display: flex; /* Convierte el contenedor en un flex container */
+    justify-content: center; /* Centra horizontalmente su contenido (la imagen) */
+    align-items: flex-end; /* Alinea la imagen a la parte inferior del contenedor si hay espacio vertical */
+}
+
+.dogs-at-bottom-image {
+    width: 100%; /* La imagen ocupará el 100% del ancho de su contenedor */
+    max-width: 100%; /* Asegura que no se desborde */
+    height: auto; /* Mantiene la relación de aspecto de la imagen */
+    /* Estas dos propiedades son claves para centrar un elemento de bloque,
+       pero con display: flex en el padre, justify-content: center es suficiente.
+       Dejarlas no hace daño, pero no son estrictamente necesarias si usas flexbox para centrar.
+    */
+    display: block; /* Asegura que se comporta como un bloque */
+    margin: 0 auto; /* Centra el elemento de bloque horizontalmente */
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 700px) {
+    .dogs-at-bottom-container {
+        margin-bottom: -15px; /* Ajusta también este valor para móviles */
+    }
+}
+
+/* --- Estilos Específicos para la Página de Adopción (Adopt.html) --- */
+
+/* Estilos para el contenedor del formulario de administración (tarjeta de subida) */
+.admin-form-card {
+    max-width: 700px; /* Un poco más estrecho que las content-card generales */
+    text-align: left; /* Alinea el texto a la izquierda dentro del formulario */
+    background-color: var(--color-blanco);
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Hereda los colores de sombra del content-card existente para consistencia */
+    box-shadow:
+        0 0 5px rgba(255, 0, 127, 0.7),
+        0 0 15px rgba(0, 191, 255, 0.7),
+        0 0 2px rgba(255, 0, 127, 0.7) inset,
+        0 0 5px rgba(0, 191, 255, 0.7) inset;
+    box-sizing: border-box;
+}
+
+.admin-form-card h2 {
+    color: var(--color-fucsia); /* Color de título para el formulario */
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Estilos para el formulario de subida de perros */
+.dog-upload-form .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinea etiquetas a la izquierda */
+}
+
+.dog-upload-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--color-texto-oscuro);
+}
+
+.dog-upload-form input[type="text"],
+.dog-upload-form input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-borde);
+    border-radius: 10px;
+    box-sizing: border-box; /* Asegura que el padding no aumente el ancho */
+    font-size: 1.1rem;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.dog-upload-form input[type="file"] {
+    padding: 8px; /* Ajuste para input file */
+}
+
+.dog-upload-form .checkbox-group {
+    flex-direction: row; /* Checkboxes en línea */
+    align-items: center;
+    gap: 10px; /* Espacio entre checkbox y label */
+    margin-top: 10px;
+}
+
+.dog-upload-form .checkbox-group input[type="checkbox"] {
+    width: auto; /* Para que el checkbox no ocupe todo el ancho */
+    margin: 0; /* Reiniciar márgenes */
+}
+
+/* Botón de submit */
+.dog-upload-form .btn-submit {
+    background-color: var(--color-azul-electrico); /* Color del botón de enviar */
+    color: var(--color-blanco);
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: block; /* Para que ocupe todo el ancho y se centre con margin-auto */
+    width: 100%; /* Ocupa el 100% del formulario */
+    max-width: 250px; /* Ancho máximo para el botón */
+    margin: 25px auto 0 auto; /* Centrar y añadir margen superior */
+    font-weight: bold;
+}
+
+.dog-upload-form .btn-submit:hover {
+    background-color: #008CBA; /* Tono más oscuro de azul */
+    transform: translateY(-2px);
+}
+
+/* --- Estilos para la cuadrícula de perros --- */
+.dogs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Columnas responsivas */
+    gap: 30px; /* Espacio entre las tarjetas de perros */
+    padding: 20px; /* Padding alrededor de la cuadrícula */
+    max-width: 1200px; /* Ancho máximo para la cuadrícula */
+    margin: 30px auto; /* Centrar la cuadrícula */
+    box-sizing: border-box;
+}
+
+/* Estilos para cada tarjeta de perro */
+.dog-card {
+    background-color: var(--color-blanco);
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+    overflow: hidden; /* Asegura que la imagen no se desborde */
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 350px; /* Altura fija para todas las tarjetas */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribuye el espacio entre la imagen y los detalles */
+}
+
+.dog-card:hover {
+    transform: translateY(-8px); /* Efecto de "levantar" al pasar el mouse */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dog-card .dog-photo {
+    width: 100%;
+    height: 200px; /* Altura fija para la imagen */
+    object-fit: cover; /* Recorta la imagen para cubrir el área sin distorsionarla */
+    border-bottom: 2px solid var(--color-borde);
+}
+
+/* Detalles del perro que aparecen al pasar el mouse (inicialmente ocultos) */
+.dog-details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Fondo semi-transparente oscuro */
+    color: var(--color-blanco);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+    opacity: 0; /* Inicialmente invisible */
+    transition: opacity 0.3s ease;
+    text-align: center;
+}
+
+.dog-card:hover .dog-details {
+    opacity: 1; /* Visible al pasar el mouse */
+}
+
+.dog-details h3 {
+    color: var(--color-azul-electrico); /* Color para el nombre del perro */
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.dog-details p {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+/* Estilo para el botón de eliminar (solo visible para admin) */
+.dog-details .btn-delete {
+    background-color: var(--color-error); /* Color rojo para eliminar */
+    color: var(--color-blanco);
+    padding: 8px 15px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 1rem;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    transition: background-color 0.3s ease;
+}
+
+.dog-details .btn-delete:hover {
+    background-color: #C0392B; /* Tono más oscuro de rojo */
+}
+
+/* --- Mensajes Flash (ya deberías tener algo similar, esto lo mejora) --- */
+.flash-messages-container {
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.flash-message {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.flash-message-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-message-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.flash-message-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Media Queries para responsividad (ajusta si es necesario) */
+@media (max-width: 768px) {
+    .dogs-grid {
+        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    }
+
+    .sidebar.open {
+        width: 100%; /* El sidebar puede ocupar todo el ancho en móviles */
+    }
+
+    #main-content.shifted {
+        margin-left: 0; /* No desplaza el contenido en móviles con sidebar abierto */
+    }
+
+   
+.sidebar .closebtn:hover {
+    color: var(--color-fucsia); /* Color hover para el botón */
+    transform: translateX(-50%) scale(1.1); /* Ligera escala al pasar el ratón */
+}
+
+/* Ocultar el botón de cerrar cuando la barra lateral está colapsada (o cambiar su icono) */
+.sidebar:not(.open) .closebtn {
+    /* Podrías cambiar el icono aquí, o ocultarlo y mostrar el botón de alternar */
+    /* Por simplicidad, mantengámoslo visible y cambiemos ligeramente su apariencia */
+    font-size: 2rem; /* Más pequeño cuando está colapsado */
+    color: rgba(255, 255, 255, 0.7);
+}
+
+    .admin-form-card,
+    .content-card {
+        padding: 20px; /* Menos padding en pantallas pequeñas */
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-toggle {
+        font-size: 2rem;
+        top: 0.8rem;
+        left: 0.8rem;
+    }
+
+    .navbar .logo {
+        font-size: 1.3rem;
+    }
+
+    .dog-details h3 {
+        font-size: 1.3rem;
+    }
+
+    .dog-details p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Estilos mejorados para el carrusel */
+
+/* Contenedor principal */
+.help-content-card {
+    background-color: var(--color-blanco);
+    padding: 40px;
+    margin: 30px auto;
+    border-radius: 12px;
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.1),
+        0 0 10px rgba(255, 0, 127, 0.1),
+        0 0 15px rgba(0, 191, 255, 0.1);
+    max-width: 900px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.help-content-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, var(--color-azul-electrico), var(--color-fucsia));
+}
+
+.section-title {
+    color: var(--color-fucsia);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--color-azul-electrico);
+}
+
+.section-subtitle {
+    color: var(--color-texto-oscuro);
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    font-weight: 300;
+}
+
+/* Carrusel mejorado */
+.carousel-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 
+        0 10px 25px rgba(0, 0, 0, 0.15),
+        inset 0 0 15px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    padding: 10px;
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    position: relative;
+}
+
+.slide-content {
+    position: relative;
+    height: 0;
+    padding-bottom: 56.25%; /* Relación 16:9 */
+    overflow: hidden;
+}
+
+.carousel-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: 100%;
+    min-width: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+    z-index: 1;
+}
+
+/* Botones de navegación */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.carousel-btn:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+    background-color: var(--color-fucsia);
+    color: white;
+}
+
+.prev-btn {
+    left: 20px;
+}
+
+.next-btn {
+    right: 20px;
+}
+
+.btn-icon {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-texto-oscuro);
+    transition: color 0.3s;
+}
+
+.carousel-btn:hover .btn-icon {
+    color: white;
+}
+
+/* Indicadores de puntos */
+.carousel-dots-container {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.carousel-dot:hover {
+    background-color: white;
+    transform: scale(1.2);
+}
+
+.carousel-dot.active {
+    background-color: var(--color-fucsia);
+    border-color: white;
+    transform: scale(1.2);
+}
+
+/* Descripción debajo del carrusel */
+.help-description {
+    margin-top: 20px;
+    font-style: italic;
+    color: var(--color-texto-oscuro);
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+/* Efecto hover para las imágenes */
+.carousel-slide:hover .carousel-image {
+    transform: translate(-50%, -50%) scale(1.03);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .help-content-card {
+        padding: 25px;
+        margin: 20px 15px;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .btn-icon {
+        font-size: 20px;
+    }
+    
+    .carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-container {
+        padding: 5px;
+    }
+    
+    .carousel-btn {
+        width: 35px;
+        height: 35px;
+        opacity: 1;
+    }
+    
+    .help-description {
+        font-size: 0.85rem;
+    }
+}
+
+/* Estilo para la tarjeta */
+.help-content-card {
+    background: rgba(122, 122, 122, 0.445); /* Fondo gris claro transparente */
+    backdrop-filter: blur(5px); /* Efecto de difuminado */
+    border-radius: 15px;
+    padding: 30px;
+    margin: 30px auto;
+    max-width: 900px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 10px rgba(255, 0, 127, 0.1),
+        0 0 15px rgba(0, 191, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto decorativo para la tarjeta */
+.help-content-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, var(--color-azul-electrico), var(--color-fucsia));
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.section-title {
+    color: var(--color-fucsia);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--color-azul-electrico);
+}
+
+.section-subtitle {
+    color: var(--color-texto-oscuro);
+    font-size: 1.1rem;
+    margin-top: 15px;
+    font-weight: 300;
+}
+
+/* Estilos para el carrusel corregido */
+.carousel-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.carousel-slide {
+    min-width: 100%;
+}
+
+.carousel-image {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+}
+
+/* [Resto de estilos del carrusel se mantienen igual] */
+
+.help-description {
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+    color: var(--color-texto-oscuro);
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+.help-content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+
+
+#main-content {
+    transition: margin-left .5s;
+    margin-left: var(--sidebar-collapsed-width);
+    flex-grow: 1;
+    padding: 20px;
+    padding-top: 80px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    padding-bottom: 50px;
+}
+
+#main-content.shifted {
+    margin-left: var(--sidebar-width);
+    max-width: calc(100% - var(--sidebar-width));
+}
+
+/* --- Estilos para todas las "tarjetas" de contenido --- */
+.content-card {
+    background-color: var(--color-blanco);
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 15px;
+    box-shadow:
+        0 0 5px rgba(255, 0, 127, 0.7),
+        0 0 15px rgba(0, 191, 255, 0.7),
+        0 0 2px rgba(255, 0, 127, 0.7) inset,
+        0 0 5px rgba(0, 191, 255, 0.7) inset;
+    max-width: 900px;
+    width: 90%;
+    line-height: 1.8;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.content-card:last-child {
+    margin-bottom: 20px;
+}
+
+/* --- Formularios (adaptado para admin-form-card) --- */
+.admin-form-card {
+    max-width: 700px;
+    text-align: left;
+    margin-bottom: 30px; /* Espacio extra entre formularios */
+}
+
+.admin-form-card h2 {
+    color: var(--color-fucsia);
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--color-texto-oscuro);
+    font-size: 1.2rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--color-borde);
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 1.1rem;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.button.primary {
+    background-color: var(--color-azul-electrico);
+    color: var(--color-blanco);
+}
+
+.button.primary:hover  {
+    background-color: #FF007F;
+    transform: translateY(-2px);
+}
+
+.button.secondary {
+    background-color: var(--color-gris-claro);
+    color: var(--color-texto-oscuro);
+    border: 1px solid var(--color-borde);
+}
+
+.button.secondary:hover {
+    background-color: var(--color-borde);
+    transform: translateY(-2px);
+}
+
+/* --- Estilos para la tabla de solicitantes --- */
+.table-responsive {
+    overflow-x: auto; /* Permite scroll horizontal en tablas grandes */
+    margin-top: 20px;
+}
+
+#adopters-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    text-align: left; /* Alinea el texto a la izquierda en la tabla */
+    font-size: 1.1rem;
+}
+
+#adopters-table th,
+#adopters-table td {
+    padding: 12px 15px;
+    border: 1px solid var(--color-borde);
+    vertical-align: middle;
+}
+
+#adopters-table thead {
+    background-color: var(--color-azul-electrico);
+    color: var(--color-blanco);
+}
+
+#adopters-table tbody tr:nth-child(even) {
+    background-color: var(--color-gris-claro);
+}
+
+#adopters-table tbody tr:hover {
+    background-color: #e9e9e9;
+}
+
+#adopters-table td:last-child {
+    text-align: center; /* Centra los botones de acción */
+    white-space: nowrap; /* Evita que los botones se envuelvan */
+}
+
+/* Estilos para el botón de eliminar específico en la tabla */
+#adopters-table .button.primary {
+    background-color: var(--color-error); /* Usar el color de error para eliminar */
+}
+#adopters-table .button.primary:hover {
+    background-color: #C0392B; /* Tono más oscuro al pasar el ratón */
+}
+
+/* --- Estilos para el Modal de Edición --- */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Posición fija para cubrir toda la pantalla */
+    z-index: 1002; /* Por encima de todo lo demás */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Habilitar scroll si el contenido es muy grande */
+    background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente oscuro */
+    padding-top: 60px; /* Espacio desde arriba */
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--color-blanco);
+    margin: 5% auto; /* Centrar vertical y horizontalmente */
+    padding: 30px;
+    border: 1px solid var(--color-borde);
+    width: 80%; /* Ancho del modal */
+    max-width: 500px; /* Ancho máximo para legibilidad */
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+/* Animación para el modal */
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 5%; opacity: 1}
+}
+
+.close-button {
+    color: var(--color-texto-oscuro);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--color-fucsia);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    color: var(--color-fucsia);
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.modal-content .form-group {
+    margin-bottom: 15px;
+}
+
+/* --- Estilos para Mensajes Flash (existente, pero asegurando visibilidad) --- */
+.flash-message-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto 0;
+    text-align: center;
+    box-sizing: border-box;
+    z-index: 100;
+}
+
+.flash-message {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: var(--color-texto-claro);
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+    font-size: 1.2rem;
+}
+
+.flash-message.success {
+    background-color: var(--color-success);
+    border: 1px solid darken(var(--color-success), 10%);
+}
+
+.flash-message.error {
+    background-color: var(--color-error);
+    border: 1px solid darken(var(--color-error), 10%);
+}
+
+.flash-message.info {
+    background-color: #d1ecf1; /* Un color para info, si lo usas */
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* --- Footer --- */
+footer {
+    background-color: var(--color-texto-oscuro);
+    color: var(--color-texto-claro);
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: auto;
+    width: 100%;
+    font-size: 1.2rem;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+    .content-card, .admin-form-card, .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    .modal-content {
+        margin: 10% auto;
+    }
+    #adopters-table th,
+    #adopters-table td {
+        padding: 8px 10px;
+        font-size: 1rem;
+    }
+    /* Asegurar que los botones de acción se vean bien en móviles */
+    #adopters-table td:last-child button {
+        padding: 5px 8px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-toggle {
+        font-size: 2rem;
+        top: 0.8rem;
+        left: 0.8rem;
+    }
+    .navbar .logo {
+        font-size: 1.3rem;
+    }
+}
+
+/* Nuevo: Estilos para el efecto de aparición al desplazarse */
+.hidden {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Estilos para la nueva sección central */
+.center-section-content {
+    display: flex; /* Hacemos que sea un contenedor flexible */
+    flex-direction: row; /* Alineamos los elementos horizontalmente */
+    gap: 20px; /* Separación entre el texto y las fotos */
+    align-items: center; /* Alinea los elementos verticalmente al centro si tienen alturas diferentes */
+    padding: 40px; /* Padding para separar del borde del fondo */
+}
+
+.quienes-somos-text {
+    flex: 1; /* Le damos peso para que ocupe el espacio disponible */
+    background-color: var(--color-blanco);
+    border-radius: 15px;
+        box-shadow:
+        0 0 5px rgba(255, 0, 127, 0.7), /* Rosado suave */
+        0 0 15px rgba(0, 191, 255, 0.7), /* Azul suave */
+        0 0 2px rgba(255, 0, 127, 0.7) inset, /* Rosado suave interior */
+        0 0 5px rgba(0, 191, 255, 0.7) inset; /* Azul suave interior */
+    padding: 20px;
+    text-align: center; /* Para centrar el texto dentro del recuadro si lo deseas */
+}
+
+/* Modificado: Estilo para el recuadro "Quiénes Somos" */
+/*.quienes-somos-card {
+    flex: 1;
+    max-width: 45%;
+    /* Elimina el borde y la sombra para que use el del content-card padre */
+    /*padding: 20px;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+}*/
+
+/* El estilo de .photos-container queda igual */
+.photos-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+/* El estilo de .photo-card y los efectos de animación no necesitan cambios */
+.photo-card {
+    background-color: var(--color-blanco);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--color-borde);
+    transition: transform 0.3s ease-in-out;
+}
+
+.photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Mantén los estilos de los efectos visuales tal cual los dejamos */
+.left-to-right {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.right-to-left {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.left-to-right.visible,
+.right-to-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 992px) {
+    .content-card .center-section-content {
+        flex-direction: column;
+    }
+    .quienes-somos-card, .photos-container {
+        max-width: 100%;
+    }
+}
+@media (max-width: 576px) {
+    .photos-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Eliminamos el recuadro blanco solo para la sección "Quiénes Somos" */
+.quienes-somos-container {
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    max-width: 1200px;
+    margin: auto;
+    margin-top: -50px; 
+    margin-bottom: -50px;
+    /* Puedes mantener el padding o margin si los necesitas para el espaciado */
+}
+
+
+/* Estilos para el contenedor del formulario de administración (tarjeta de subida) */
+.admin-form-card {
+    max-width: 700px; /* Un poco más estrecho que las content-card generales */
+    text-align: left; /* Alinea el texto a la izquierda dentro del formulario */
+    background-color: var(--color-blanco);
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-form-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre los grupos de formulario */
+}
+
+.admin-form-card .form-group input[type="file"] {
+    border: none;
+    padding: 0;
+}
+
+/*
+ * NUEVOS ESTILOS PARA LAS PUBLICACIONES DE PERROS EN ADOPCIÓN
+ * ============================================================
+ * Este código crea un diseño de cuadrícula con un efecto de "volteo"
+ * en las tarjetas de los perros para mostrar sus detalles y botones.
+ */
+
+/* Contenedor principal de las publicaciones */
+.dog-posts-container {
+    display: grid;
+    /* Crea un layout de cuadrícula que se adapta al ancho de la pantalla */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    perspective: 1000px; /* Habilita el efecto 3D de volteo */
+}
+
+/* Estilo para cada tarjeta de publicación */
+.dog-post-card {
+    position: relative;
+    width: 100%;
+    height: 380px; /* Establece una altura fija para hacerla cuadrada */
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+/* Estilo para la parte frontal de la tarjeta (la foto) */
+.dog-post-card-front,
+.dog-post-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Oculta el reverso para que no se vea a través del anverso */
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dog-post-card-front {
+    background-color: #f0f2f5;
+}
+
+/* Estilo de la imagen del perro */
+.dog-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Estilo para la parte trasera de la tarjeta (detalles) */
+.dog-post-card-back {
+    background-color: #fff;
+    transform: rotateY(180deg); /* La parte trasera comienza volteada */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+/* Animación de volteo cuando la tarjeta está "activa" */
+.dog-post-card.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Estilos para los detalles en la parte trasera */
+.dog-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dog-details h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--color-azul-electrico);
+}
+
+.dog-details p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Contenedor de botones en la parte trasera */
+.card-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+    margin-top: 1rem;
+}
+
+.edit-button,
+.delete-button {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.edit-button {
+    background-color: var(--color-azul-electrico);
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #008cc0;
+}
+
+.delete-button {
+    background-color: var(--color-error);
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+}
+
+/*
+ * ESTILOS DE LA TARJETA VOLTEABLE (FLIP CARD) MODIFICADA
+ * ============================================================
+ */
+
+/* Contenedor principal de las publicaciones */
+.dog-posts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 30px auto;
+    perspective: 1000px;
+}
+
+
+
+/* Estado de volteo (Flip) */
+.dog-post-card.flipped {
+    transform: rotateY(180deg);
+}
+
+
+
+/* Estilo de la imagen del perro */
+.dog-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+/* Efecto hover en la imagen de la tarjeta */
+.dog-post-card:hover .dog-photo {
+    transform: scale(1.05);
+}
+
+/* Estilo para la parte frontal (Foto) */
+.dog-post-card-front {
+    background-color: var(--color-gris-claro);
+}
+
+.front-details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+    color: var(--color-blanco);
+    text-align: center;
+}
+
+.front-details h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--color-fucsia);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+.front-details p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* Estilo para la parte trasera de la tarjeta (detalles) */
+.dog-post-card-back {
+    background-color: var(--color-blanco);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    text-align: left;
+}
+
+.dog-details-back {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--color-texto-oscuro);
+    /* Permite que los detalles ocupen el espacio restante, empujando los botones hacia abajo */
+    flex-grow: 1; 
+}
+
+.dog-details-back h3 {
+    margin-top: 0;
+    font-size: 2rem;
+    color: var(--color-azul-electrico);
+    text-align: center;
+    border-bottom: 2px solid var(--color-fucsia);
+    padding-bottom: 10px;
+}
+
+.dog-details-back p {
+    margin: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.dog-details-back p strong {
+    font-weight: bold;
+}
+.dog-details-back p .icon {
+    color: var(--color-fucsia);
+    font-size: 1.4rem;
+}
+
+/* Contenedor de botones: Asegura que esté al final y bien separado */
+.card-buttons-container {
+    display: flex;
+    justify-content: space-between; /* Alinea los botones a los extremos */
+    gap: 10px;
+    padding-top: 15px;
+    margin-top: 15px;
+    border-top: 1px solid var(--color-borde);
+    /* Importante: Añade espacio para que no choque con el borde inferior */
+    padding-bottom: 5px; 
+}
+
+/* Estilo para el botón de Editar */
+.edit-button {
+    background-color: var(--color-azul-electrico);
+    color: var(--color-blanco);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    flex-grow: 1; /* Permite que ocupe el espacio */
+    text-align: center;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.edit-button:hover {
+    background-color: #008cc0;
+}
+
+
+/* Botón de Eliminar (Admin) */
+.delete-button {
+    background-color: var(--color-error);
+    color: var(--color-blanco);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    flex-grow: 1; /* Permite que ocupe el espacio */
+    text-align: center;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.delete-button:hover {
+    background-color: #C0392B;
+}
+
+/* Media Query para responsividad de la cuadrícula */
+@media (max-width: 650px) {
+    .dog-posts-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/*
+ * ESTILOS PARA LA MODAL DE EDICIÓN
+ * ========================================
+ */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 2000; /* Alto z-index para que esté sobre todo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: var(--color-blanco);
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 600px; /* Ancho mayor para el formulario de edición */
+    width: 90%;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    position: relative;
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+    /* Ajuste para que se vea como una tarjeta con los colores principales */
+    border: 3px solid var(--color-azul-electrico);
+    box-shadow: 
+        0 0 10px rgba(0, 191, 255, 0.9), 
+        0 0 20px rgba(255, 0, 127, 0.5);
+}
+
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 5%; opacity: 1}
+}
+
+.close-button {
+    color: var(--color-texto-oscuro);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: var(--color-fucsia);
+}
+
+.modal-content h2 {
+    color: var(--color-fucsia);
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--color-azul-electrico);
+    padding-bottom: 10px;
+}
+
+.modal-form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-borde);
+}
+
+.modal-form-actions .button.primary {
+    flex-grow: 1;
+    margin-right: 15px;
+    background-color: var(--color-azul-electrico); /* Botón principal de guardar */
+}
+
+.modal-form-actions .button.delete {
+    flex-grow: 0;
+    background-color: var(--color-error); /* Botón de eliminar */
+}
+
+.modal-form-actions .button.delete:hover {
+    background-color: #C0392B;
+}
+
+
+/* --- Estilos para Mensajes Flash (existente) --- */
+.flash-message-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto 0;
+    text-align: center;
+    box-sizing: border-box;
+    z-index: 100;
+}
+
+.flash-message {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: var(--color-texto-claro);
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.flash-message-success {
+    background-color: var(--color-success);
+    border: 1px solid #1e7e34; /* Tono más oscuro de verde */
+}
+
+.flash-message-danger {
+    background-color: var(--color-error);
+    border: 1px solid #bd2130; /* Tono más oscuro de rojo */
+}
+
+.flash-message-info {
+    background-color: #d1ecf1; 
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.flash-message.success {
+    background-color: var(--color-success);
+}
+
+.flash-message.error {
+    background-color: var(--color-error);
+}
+
+.flash-message.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+
+/*
+ * ESTILOS PARA EL BOTÓN FLOTANTE DE EVENTOS
+ * ========================================
+ */
+.floating-btn {
+    position: fixed;
+    bottom: 30px; 
+    right: 30px; 
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-fucsia); /* Fucsia */
+    color: var(--color-blanco);
+    border-radius: 50%; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    z-index: 1000; 
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.floating-btn:hover {
+    background-color: var(--color-azul-electrico); /* Azul Eléctrico */
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+    .floating-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
+    }
+}
+
+
+/*
+ * ESTILOS PARA EL CALENDARIO (schedule.html)
+ * =========================================
+ */
+.calendar-card {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header h2 {
+    color: var(--color-azul-electrico);
+    font-size: 2.2rem;
+    text-transform: uppercase;
+}
+
+.calendar-days-of-week,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-days-of-week div {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+    color: var(--color-fucsia);
+    border-bottom: 2px solid var(--color-borde);
+    font-size: 1.2rem;
+}
+
+.calendar-day {
+    min-height: 80px;
+    border: 1px solid var(--color-borde);
+    padding: 5px;
+    text-align: right;
+    font-size: 1.1rem;
+    cursor: default;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.calendar-day.empty {
+    background-color: var(--color-gris-claro);
+    cursor: not-allowed;
+}
+
+.calendar-day.has-event {
+    background-color: rgba(0, 191, 255, 0.1); /* Fondo sutil azul para días con evento */
+    cursor: pointer;
+}
+
+.calendar-day.has-event:hover {
+    background-color: rgba(0, 191, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+}
+
+.calendar-day.today {
+    border: 2px solid var(--color-fucsia);
+    box-shadow: 0 0 5px rgba(255, 0, 127, 0.5);
+}
+
+.event-marker {
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-fucsia);
+    border-radius: 50%;
+    margin-top: 4px;
+    margin-right: 5px;
+    float: right;
+}
+
+/* Modal para detalles del evento */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+    background-color: var(--color-blanco);
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.modal-event-photo {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-content h3 {
+    color: var(--color-azul-electrico);
+    border-bottom: 2px solid var(--color-fucsia);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-admin-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-borde);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.button.delete {
+    background-color: var(--color-error);
+}
+
+.button.delete:hover {
+    background-color: #C0392B;
+}
+
+.admin-form-card {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* --- NUEVOS ESTILOS para el botón Generar Enlace en admin.html --- */
+
+.generate-link-btn {
+    background-color: var(--color-fucsia);
+    color: var(--color-blanco);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    font-weight: bold;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.generate-link-btn:hover {
+    background-color: var(--color-azul-electrico);
+    transform: translateY(-2px);
+}
+
+.link-display-box {
+    background-color: var(--color-gris-claro);
+    border: 1px solid var(--color-borde);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    word-break: break-all; /* Rompe el texto largo (URL) para que quepa */
+    text-align: left;
+    font-size: 1rem;
+    cursor: pointer; /* Indica que es clickable para copiar */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.link-display-box i {
+    margin-right: 5px;
+    color: var(--color-fucsia);
+}
+
+/*
+ * ===================================================================
+ * NUEVOS ESTILOS PARA SLIDER ASIMÉTRICO (Texto a la Izquierda)
+ * ===================================================================
+ */
+
+.event-slider-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    background-color: rgba(20, 20, 25, 0.6); /* Un poco más oscuro */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: hidden;
+    animation: fadeInOverlay 0.5s ease-in-out;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.event-slides-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* El slide ahora es un contenedor FLEX de dos columnas */
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; /* <-- La clave del layout de 2 columnas */
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    padding: 4rem 6rem; /* Más padding para que no toque los bordes */
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.7s ease-in-out, visibility 0.7s;
+}
+
+.slide.current-slide {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- Columna de Texto --- */
+.slide-text-content {
+    flex: 0 1 40%; /* Ocupa el 40% del ancho */
+    color: var(--color-blanco);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    /* Animación de entrada */
+    transform: translateX(-30px);
+    opacity: 0;
+    animation: slideInText 0.8s 0.3s forwards ease-out;
+}
+
+.slide.current-slide .slide-text-content {
+    animation-name: slideInText; /* Reactiva la animación en cada slide */
+}
+
+@keyframes slideInText {
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-date {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-fucsia);
+    letter-spacing: 1px;
+}
+
+.slide-title {
+    font-family: 'Patrick Hand', 'MV Boli', cursive; /* Usar la misma fuente */
+    font-size: 5vw; /* Tamaño de fuente relativo al ancho de la ventana */
+    font-weight: 900; /* Super bold */
+    margin: 0;
+    line-height: 1.1;
+    color: var(--color-blanco);
+    text-transform: uppercase;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+}
+
+.slide-description {
+    font-size: 1.3rem;
+    color: var(--color-gris-claro);
+    line-height: 1.7;
+    border-left: 3px solid var(--color-azul-electrico); /* Detalle visual */
+    padding-left: 1rem;
+}
+
+/* --- Columna de Imagen --- */
+.slide-image-container {
+    flex: 0 1 60%; /* Ocupa el 60% del ancho */
+    height: 80%; /* Altura máxima del contenedor de la imagen */
+    /* Animación de entrada */
+    transform: scale(0.95);
+    opacity: 0;
+    animation: zoomInImage 0.8s 0.5s forwards ease-out;
+}
+
+.slide.current-slide .slide-image-container {
+    animation-name: zoomInImage;
+}
+
+@keyframes zoomInImage {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.slide-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* <-- LA MAGIA: La imagen se ajusta sin cortarse */
+    border-radius: 15px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
+
+/* Botón de cierre y navegación */
+.slider-close-btn {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    z-index: 30;
+    color: var(--color-blanco);
+    font-size: 2.5rem;
+    text-decoration: none;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+.slider-close-btn:hover {
+    transform: scale(1.2) rotate(90deg);
+    color: var(--color-fucsia);
+}
+
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    color: var(--color-blanco);
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.slider-arrow:hover {
+    background: var(--color-fucsia);
+    border-color: var(--color-fucsia);
+}
+.slider-arrow.prev { left: 40px; }
+.slider-arrow.next { right: 40px; }
+
+.slider-dots {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 20;
+}
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.dot.current-slide {
+    background: var(--color-blanco);
+    transform: scale(1.3);
+}
+
+/* Diseño Responsivo */
+@media (max-width: 900px) {
+    .slide {
+        flex-direction: column; /* Apila las columnas en móvil */
+        padding: 5rem 2rem 2rem 2rem;
+        text-align: center;
+    }
+    .slide-text-content {
+        flex-basis: auto;
+        order: 2; /* El texto va después de la imagen */
+    }
+    .slide-image-container {
+        flex-basis: auto;
+        order: 1; /* La imagen va primero */
+        width: 100%;
+        height: 50%;
+    }
+    .slide-title {
+        font-size: 10vw;
+    }
+    .slide-description {
+        border-left: none;
+        padding-left: 0;
+    }
+    .slider-dots {
+        bottom: 20px;
+    }
+}
+
+/* --- Estilos para las tarjetas de contacto (Versión final con animación corregida) --- */
+.contact-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 40px 20px;
+}
+
+.contact-container .card {
+    position: relative;
+    width: 300px;
+    height: 180px; /* Altura total de la tarjeta, incluyendo el área blanca */
+}
+
+/* CARA 2: La parte blanca con el contenido. Se define primero para que quede debajo. */
+.contact-container .card .face2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* CARA 1: La parte de color con el ícono. Queda por encima de la cara 2. */
+.contact-container .card .face1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    transition: 0.5s ease-in-out;
+}
+
+/* Lógica de la animación: La cara 1 se desliza hacia arriba para revelar la cara 2 */
+.contact-container .card:hover .face1 {
+    transform: translateY(-170px); /* Desliza hacia arriba para revelar el contenido */
+    border-radius: 15px 15px 0 0; /* Ajusta los bordes al subir */
+}
+
+/* Estilos del contenido de ambas caras */
+.contact-container .card .face .content {
+    text-align: center;
+}
+
+.contact-container .card .face1 .content i {
+    font-size: 4em;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.contact-container .card .face1 .content h3 {
+    margin: 0;
+    font-size: 1.8em;
+    color: white;
+}
+
+.contact-container .card .face2 .content p {
+    margin: 0 0 20px 0;
+    padding: 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.contact-container .card .face2 .content a {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 25px;
+    font-size: 1.2em;
+    transition: 0.3s;
+}
+
+
+/* --- Colores personalizados para cada tarjeta (se mantienen igual) --- */
+
+/* Instagram */
+.card.instagram .face1 {
+    background: #E1306C; /* Rosa de Instagram */
+}
+.card.instagram .face2 a {
+    background: #E1306C;
+}
+.card.instagram .face2 a:hover {
+    background: #C13584;
+}
+
+/* TikTok */
+.card.tiktok .face1 {
+    background: #000000; /* Negro de TikTok */
+}
+.card.tiktok .face2 a {
+    background: #000000;
+}
+.card.tiktok .face2 a:hover {
+    background: #333;
+}
+
+/* WhatsApp */
+.card.whatsapp .face1 {
+    background: #25D366; /* Verde de WhatsApp */
+}
+.card.whatsapp .face2 a {
+    background: #25D366;
+}
+.card.whatsapp .face2 a:hover {
+    background: #128C7E;
+}
+
+/* Ubicación */
+.card.location .face1 {
+    background: #4285F4; /* Azul de Google */
+}
+.card.location .face2 a {
+    background: #4285F4;
+}
+.card.location .face2 a:hover {
+    background: #357ae8;
+}
+
+/*
+ * ===================================================================
+ * AJUSTES DE ESTILO PARA FORMULARIO Y SLIDER DE EVENTOS
+ * ===================================================================
+ */
+
+/* --- Mejoras para el formulario de eventos (schedule.html) --- */
+
+.admin-form-card h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1.8rem;
+}
+
+.admin-form-card .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre icono y texto */
+    color: #555;
+}
+
+.admin-form-card .form-group input,
+.admin-form-card .form-group textarea {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.admin-form-card .form-group input:focus,
+.admin-form-card .form-group textarea:focus {
+    background-color: #fff;
+    border-color: var(--color-azul-electrico);
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.3);
+}
+
+/* Cuadrícula para organizar fecha, hora y ubicación */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 20px;
+}
+
+/* --- Mejoras para la vista de eventos (events.html) --- */
+
+.slide-text-content {
+    justify-content: center; /* Centra el contenido verticalmente */
+}
+
+/* Nuevo contenedor para la info de fecha, hora y lugar */
+.slide-info-header {
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    gap: 1rem; /* Espacio entre los items */
+    margin-bottom: 2rem;
+    border-left: 3px solid var(--color-fucsia);
+    padding-left: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem; /* ¡Texto más grande! */
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.info-item i {
+    color: var(--color-azul-electrico);
+}
+
+/* Ajustes responsivos para el formulario y slider */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Una columna en móviles */
+    }
+    .slide-info-header {
+        padding-left: 1rem;
+    }
+    .info-item {
+        font-size: 1.2rem;
+    }
+}
+
+/* --- ESTILOS PARA PÁGINA CÓMO AYUDAR (NUEVAS SECCIONES) --- */
+
+/* Sección de Tipos de Donaciones */
+.donations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.donation-card {
+    background-color: var(--color-blanco);
+    padding: 30px 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-bottom: 5px solid var(--color-azul-electrico);
+}
+
+.donation-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(255, 0, 127, 0.2);
+    border-bottom-color: var(--color-fucsia);
+}
+
+.donation-icon-container {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--color-azul-electrico), var(--color-fucsia));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.donation-icon-container i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.donation-card h3 {
+    color: var(--color-fucsia);
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+.donation-card p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* Sección de Servicio Comunitario */
+.community-service-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    align-items: flex-start;
+    margin-top: 30px;
+}
+
+.community-info {
+    flex: 1 1 400px; /* Ocupa espacio pero con base mínima */
+}
+
+.community-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.community-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.community-info li {
+    margin-bottom: 15px;
+    padding-left: 35px;
+    position: relative;
+    font-size: 1.2rem;
+}
+
+.community-info li::before {
+    content: "\f1b0"; /* Icono de patita (paw) de FontAwesome */
+    font-family: "Font Awesome 6 Free"; /* Actualizado para compatibilidad */
+    font-weight: 900;
+    color: var(--color-fucsia);
+    position: absolute;
+    left: 0;
+    top: 4px;
+}
+
+/* Formulario de WhatsApp */
+.whatsapp-form-card {
+    flex: 1 1 350px;
+    background: linear-gradient(to bottom right, #ffffff, #f9f9f9);
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-top: 5px solid var(--color-success); /* Verde WhatsApp */
+}
+
+.whatsapp-form-card h3 {
+    color: #25D366; /* Verde WhatsApp */
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.whatsapp-form-card .form-group input,
+.whatsapp-form-card .form-group select {
+    border-radius: 25px; /* Inputs más redondeados y amigables */
+    padding-left: 20px;
+    border: 2px solid #eee;
+    transition: border-color 0.3s;
+}
+
+.whatsapp-form-card .form-group input:focus {
+    border-color: #25D366;
+}
+
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+    width: 100%;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    padding: 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-family: 'Patrick Hand', 'MV Boli', cursive;
+}
+
+.btn-whatsapp:hover {
+    background-color: #1ebc57;
+    transform: scale(1.02);
+}
+
+/* Adorno adorable */
+.cute-decoration {
+    text-align: center;
+    font-size: 4rem;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* --- Estilos para las nuevas tarjetas de redes sociales --- */
+
+/* Facebook */
+.card.facebook .face1 {
+    background: #1877F2; /* Azul Facebook */
+}
+.card.facebook .face2 a {
+    background: #1877F2;
+}
+.card.facebook .face2 a:hover {
+    background: #145dbf; /* Un tono más oscuro para el hover */
+}
+
+/* Twitter / X */
+.card.twitter .face1 {
+    background: #1DA1F2; /* Azul Twitter (para diferenciar del negro de TikTok) */
+}
+.card.twitter .face2 a {
+    background: #1DA1F2;
+}
+.card.twitter .face2 a:hover {
+    background: #0c85d0; /* Un tono más oscuro para el hover */
+}

@@ -1,0 +1,26 @@
+# flyctl launch added from .git\.gitignore
+# Archivos generados por Python
+.git\**\__pycache__
+.git\**\*.pyc
+
+# Entornos virtuales
+.git\**\.venv
+.git\**\venv
+
+# Archivos de subida de Flask (tus imágenes)
+.git\**\static\uploads
+
+# Base de datos local (si usas sqlite local)
+.git\**\*.db
+
+# flyctl launch added from .gitignore
+# Ignorar entorno virtual
+**\venv
+**\.env
+
+# Ignorar caché
+**\__pycache__
+
+# Ignorar archivos de sistema operativo
+**\.DS_Store
+fly.toml

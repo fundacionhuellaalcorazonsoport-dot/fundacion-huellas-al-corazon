@@ -1,18 +1,18 @@
-# Usa una imagen base de Python (ajusta la versión si es necesario)
-FROM python:3.9-slim
+# -----------------------------------------------------------
+# CAMBIO CRÍTICO: Actualizado a Python 3.10 para soportar click==8.2.1
+FROM python:3.10-slim
 
 # Establece el directorio de trabajo
 WORKDIR /app
 
 # Copia el archivo de requisitos e instala las dependencias
-# (Esto ya lo hiciste correctamente y usa tu archivo 'requirements.txt')
+# (Asegúrate de que requirements.txt contenga gunicorn y psycopg2-binary)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el resto del código de tu aplicación (como app.py, templates, static, etc.)
-# (Esta línea debe ir ANTES del comando de ejecución)
+# Copia el resto del código de tu aplicación (app.py, templates, static, etc.)
 COPY . .
 
-# Comando de ejecución (USA GUNICORN)
-# Asegúrate de que tu aplicación principal en app.py se llama 'app'
-CMD exec gunicorn --bind 0.0.0.0:"${PORT:-5000}" app:app
+# Comando de ejecución de Gunicorn. Fly.io usa el puerto 8080 por defecto.
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+# -----------------------------------------------------------
